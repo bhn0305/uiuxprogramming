@@ -3,10 +3,10 @@
     --card-bg: #ffffff;
     --text-main: #333333;
     --text-sub: #666666;
-    --border-color: #e1e8ed;
+    --border-color: #deddea; 
     --nav-bg: #f0f4f8;
     --primary-color: #ff7f00;
-    --feature-li-bg: #fafbfc;
+    --feature-li-bg: #f4f3ff; 
 }
 
 /* 다크모드 색상 */
@@ -36,9 +36,23 @@ body {
 }
 
 
+header,
+main,
+footer {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding-left: 24px;
+    padding-right: 24px;
+    background-color: transparent; 
+    border: none;
+}
+
+
 header {
     background-color: var(--card-bg);
-    padding: 30px 20px;
+    padding-top: 30px;
+    padding-bottom: 30px;
     text-align: center;
     border-bottom: 2px solid var(--border-color);
     transition: background-color 0.3s ease;
@@ -56,13 +70,12 @@ header p {
     margin-bottom: 20px;
 }
 
-
 .header-top {
     display: flex;
     justify-content: flex-end;
-    max-width: 800px;
+    max-width: 1100px;
     margin: 0 auto 10px auto;
-    padding: 0 20px;
+    padding: 0 24px;
 }
 
 /* 다크모드 버튼 */
@@ -84,11 +97,12 @@ header p {
     border-color: var(--primary-color);
 }
 
-
 nav {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-    gap: 20px;
+    gap: 24px;
+    margin-top: 24px;
 }
 
 nav a {
@@ -106,11 +120,8 @@ nav a:hover {
     color: #ffffff;
 }
 
-
 main {
-    max-width: 800px;
     margin: 40px auto;
-    padding: 0 20px;
 }
 
 section {
@@ -142,8 +153,8 @@ section p {
     margin-bottom: 15px;
 }
 
-
 section img {
+    width: 100%;
     max-width: 100%;
     height: auto;
     border-radius: 8px;
@@ -153,20 +164,24 @@ section img {
 
 
 #features ul {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    align-items: stretch;
+    gap: 24px;
 }
 
 #features li {
+    min-width: 0;
     background-color: var(--feature-li-bg);
-    padding: 20px;
+    padding: 20px 24px;
+    margin-bottom: 0;
     border-radius: 8px;
     border-left: 5px solid var(--primary-color);
     border: 1px solid var(--border-color);
 }
-
 
 #steps ol {
     padding-left: 20px;
@@ -177,7 +192,6 @@ section img {
     color: var(--text-sub);
     font-weight: 500;
 }
-
 
 form {
     display: flex;
@@ -191,6 +205,7 @@ form label {
 }
 
 form input[type="text"] {
+    width: 100%;
     padding: 12px;
     font-size: 1rem;
     border: 1px solid var(--border-color);
@@ -205,6 +220,8 @@ form input[type="text"]:focus {
 }
 
 form button {
+    width: 100%;
+    min-height: 48px;
     padding: 12px;
     font-size: 1rem;
     font-weight: bold;
@@ -220,13 +237,71 @@ form button:hover {
     background-color: #e06d00;
 }
 
-
 footer {
     text-align: center;
-    padding: 20px;
+    padding: 20px 24px;
     background-color: var(--card-bg);
     color: var(--text-sub);
     border-top: 1px solid var(--border-color);
     font-size: 0.9rem;
     transition: background-color 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    body {
+        font-size: 16px;
+    }
+
+    header {
+        padding-top: 32px;
+        padding-bottom: 24px;
+    }
+
+    header h1 {
+        font-size: 32px;
+    }
+
+    header p {
+        font-size: 1rem;
+    }
+
+    section {
+        margin-top: 20px;
+        padding: 20px;
+    }
+
+    section h2 {
+        font-size: 24px;
+    }
+    
+    nav {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        margin-top: 16px;
+    }
+
+    nav a {
+        display: block;
+        text-align: center;
+        padding: 8px 0;
+    }
+
+    #features ul {
+        grid-template-columns: 1fr;
+    }
+
+    form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    input,
+    button {
+        width: 100%;
+    }
+
+    button {
+        min-height: 48px;
+    }
 }
