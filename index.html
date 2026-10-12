@@ -72,13 +72,21 @@
         </section>
 
         <section id="register">
-            <h2>캐릭터 등록</h2>
-
-            <form>
+            <h2>캐릭터 등록 및 조회</h2>
+            <form id="search-form">
                 <label for="nickname">캐릭터 닉네임</label>
-                <input type="text" id="nickname" name="nickname" placeholder="메이플 닉네임을 입력하세요">
-                <button type="submit">등록 및 조회</button>
+                <input type="text" id="nickname" name="nickname" placeholder="메이플 닉네임을 입력하세요" required>
+                <button type="submit" id="search-btn">검색 및 조회</button>
             </form>
+
+            <!-- 결과 출력 및 상태 안내 영역 -->
+            <div id="result-container" style="margin-top: 20px; text-align: center;">
+                <p id="status-message" style="color: var(--text-sub);">닉네임을 입력하고 조회 버튼을 누르세요.</p>
+                <div id="character-info" style="display: none;">
+                    <img id="char-image" src="" alt="캐릭터 이미지" style="max-width: 150px; margin-top: 10px;">
+                    <h4 id="char-name" style="margin-top: 10px; color: var(--text-main);"></h4>
+                </div>
+            </div>
         </section>
     </main>
 

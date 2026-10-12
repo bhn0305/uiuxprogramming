@@ -3,10 +3,10 @@
     --card-bg: #ffffff;
     --text-main: #333333;
     --text-sub: #666666;
-    --border-color: #deddea; 
+    --border-color: #deddea;
     --nav-bg: #f0f4f8;
     --primary-color: #ff7f00;
-    --feature-li-bg: #f4f3ff; 
+    --feature-li-bg: #f4f3ff;
 }
 
 /* 다크모드 색상 */
@@ -44,7 +44,7 @@ footer {
     margin: 0 auto;
     padding-left: 24px;
     padding-right: 24px;
-    background-color: transparent; 
+    background-color: transparent;
     border: none;
 }
 
@@ -273,7 +273,7 @@ footer {
     section h2 {
         font-size: 24px;
     }
-    
+
     nav {
         flex-direction: column;
         align-items: stretch;
