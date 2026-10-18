@@ -117,7 +117,7 @@ if (searchForm) {
 
         try {
             // 내 백엔드 서버로 요청 전송 (API 키 노출 방지)
-            const serverUrl = 'http://localhost:3000/api/character?nickname=' + encodeURIComponent(nickname);
+            // const serverUrl = 'http://localhost:3000/api/character?nickname=' + encodeURIComponent(nickname);
             // Render 서버 주소 적용
             const response = await fetch(`https://mapletodo.onrender.com/api/character?nickname=${nickname}`);
             const data = await response.json();
