@@ -104,8 +104,6 @@ const charName = document.getElementById('char-name');
 const charLevel = document.getElementById('char-level');
 const charClass = document.getElementById('char-class');
 
-const API_KEY = 'test_7c77f9a58ed9b5983de3f7c0416107c8ee337931376f5e766e7a1b817331e542efe8d04e6d233bd35cf2fabdeb93fb0d';
-
 if (searchForm) {
     searchForm.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -118,47 +116,36 @@ if (searchForm) {
         statusMessage.textContent = `⏳ '${nickname}' 캐릭터 정보와 스케줄러를 조회하는 중입니다...`;
 
         try {
-            const idUrl = 'https://open.api.nexon.com/maplestory/v1/id?character_name=' + encodeURIComponent(nickname);
-            const idRes = await fetch(idUrl, { headers: { 'x-nxopen-api-key': API_KEY } });
-            const idData = await idRes.json();
+            // 내 백엔드 서버로 요청 전송 (API 키 노출 방지)
+            const serverUrl = 'http://localhost:3000/api/character?nickname=' + encodeURIComponent(nickname);
+            const response = await fetch(serverUrl);
+            const data = await response.json();
 
-            if (idRes.ok && idData.ocid) {
-                const basicUrl = `https://open.api.nexon.com/maplestory/v1/character/basic?ocid=${idData.ocid}`;
-                const basicRes = await fetch(basicUrl, { headers: { 'x-nxopen-api-key': API_KEY } });
-                const basicData = await basicRes.json();
+            if (response.ok) {
+                statusMessage.textContent = `🎉 '${nickname}' 캐릭터 조회 및 스케줄러 연동 완료!`;
 
-                const schedulerUrl = `https://open.api.nexon.com/maplestory/v1/scheduler/character-state?ocid=${idData.ocid}`;
-                const schedulerRes = await fetch(schedulerUrl, { headers: { 'x-nxopen-api-key': API_KEY } });
-                const schedulerData = schedulerRes.ok ? await schedulerRes.json() : null;
+                const basicData = data.basic;
+                const schedulerData = data.scheduler;
 
-                if (basicRes.ok) {
-                    statusMessage.textContent = `🎉 '${nickname}' 캐릭터 조회 및 스케줄러 연동 완료!`;
+                charImg.src = basicData.character_image || '';
+                charName.textContent = basicData.character_name;
+                charLevel.textContent = `Lv.${basicData.character_level}`;
+                charClass.textContent = basicData.character_class;
 
-                    charImg.src = basicData.character_image || '';
-                    charName.textContent = basicData.character_name;
-                    charLevel.textContent = `Lv.${basicData.character_level}`;
-                    charClass.textContent = basicData.character_class;
-
-                    if (schedulerData) {
-                        cachedSchedulerData = schedulerData;
-                        const onlyRegistered = completedFilterCheckbox ? completedFilterCheckbox.checked : true;
-                        renderAllTasks(schedulerData, onlyRegistered);
-                    }
-
-                    charCard.style.display = 'flex';
-                } else {
-                    throw new Error('캐릭터 정보를 가져오지 못했습니다.');
+                if (schedulerData) {
+                    cachedSchedulerData = schedulerData;
+                    const onlyRegistered = completedFilterCheckbox ? completedFilterCheckbox.checked : true;
+                    renderAllTasks(schedulerData, onlyRegistered);
                 }
-            } else {
-                let errorMsg = '존재하지 않거나 정보를 찾을 수 없는 닉네임입니다.';
-                if (idRes.status === 403) errorMsg = 'API 인증 오류가 발생했습니다.';
-                else if (idRes.status === 429) errorMsg = '요청 한도를 초과했습니다.';
 
+                charCard.style.display = 'flex';
+            } else {
+                let errorMsg = data.error || '존재하지 않거나 정보를 찾을 수 없는 닉네임입니다.';
                 statusMessage.textContent = `❌ 조회 실패: ${errorMsg}`;
                 charCard.style.display = 'none';
             }
         } catch (error) {
-            statusMessage.textContent = '🚨 네트워크 연결 오류가 발생했습니다.';
+            statusMessage.textContent = '🚨 서버 연결 오류가 발생했습니다. (백엔드 서버가 켜져있는지 확인해주세요)';
             console.error(error);
             charCard.style.display = 'none';
         } finally {
