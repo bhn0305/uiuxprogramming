@@ -1,69 +1,264 @@
-const toggleButton = document.getElementById('theme-toggle');
-const htmlElement = document.documentElement;
-
-// 버튼 클릭 시 테마 전환
-toggleButton.addEventListener('click', () => {
-    const currentTheme = htmlElement.getAttribute('data-theme');
-    if (currentTheme === 'dark') {
-        htmlElement.removeAttribute('data-theme');
-        toggleButton.textContent = '🌙 다크모드';
-    } else {
-        htmlElement.setAttribute('data-theme', 'dark');
-        toggleButton.textContent = '☀️ 라이트모드';
-    }
+document.addEventListener("DOMContentLoaded", () => {
+    initThemeToggle();
+    initSpaNavigation();
 });
 
+function initThemeToggle() {
+    const toggleButton = document.getElementById('theme-toggle');
+    const htmlElement = document.documentElement;
 
-const searchForm = document.getElementById('search-form');
-const nicknameInput = document.getElementById('nickname');
-const searchBtn = document.getElementById('search-btn');
-const API_KEY = 'test_7c77f9a58ed9b5983de3f7c0416107c8ee337931376f5e766e7a1b817331e542efe8d04e6d233bd35cf2fabdeb93fb0d';
+    if (!toggleButton) return;
 
-searchForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
+    const currentTheme = htmlElement.getAttribute('data-theme');
+    toggleButton.textContent = currentTheme === 'dark' ? '☀️ Light' : '🌙 Dark';
 
-    const nickname = nicknameInput.value.trim();
+    toggleButton.addEventListener('click', () => {
+        const isDarkMode = htmlElement.getAttribute('data-theme') === 'dark';
 
-    if (!nickname) {
-        alert('⚠️ 닉네임을 입력해주세요.');
-        return;
-    }
+        if (isDarkMode) {
+            htmlElement.removeAttribute('data-theme');
+            localStorage.setItem('theme', 'light');
+            toggleButton.textContent = '🌙 Dark';
+        } else {
+            htmlElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            toggleButton.textContent = '☀️ Light';
+        }
+    });
+}
 
-    searchBtn.disabled = true;
-    searchBtn.textContent = '조회 중...';
+// 헤더 메뉴 전환
+function initSpaNavigation() {
+    const navButtons = document.querySelectorAll('.spa-nav-btn');
+    const sections = document.querySelectorAll('.spa-section');
 
-    try {
-        const url = 'https://open.api.nexon.com/maplestory/v1/id?character_name=' + encodeURIComponent(nickname);
+    if (navButtons.length === 0) return;
 
-        const response = await fetch(url, {
-            headers: {
-                'x-nxopen-api-key': API_KEY
+    navButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = btn.getAttribute('data-target');
+
+            navButtons.forEach(b => b.classList.remove('active'));
+            document.querySelectorAll(`.spa-nav-btn[data-target="${targetId}"]`).forEach(b => {
+                b.classList.add('active');
+            });
+
+            sections.forEach(sec => {
+                sec.style.display = 'none';
+            });
+            const targetSection = document.getElementById(targetId);
+            if (targetSection) {
+                targetSection.style.display = 'block';
             }
         });
+    });
+}
 
-        const data = await response.json();
+const nicknameInput = document.getElementById('nickname');
+const statusMessage = document.getElementById('status-message');
+const searchBtn = document.getElementById('search-btn');
 
-        if (response.ok && data.ocid) {
-            // 캐릭터가 존재할 때 alert 창
-            alert(`✅ '${nickname}' 캐릭터가 존재합니다! (OCID 확인 완료)`);
+if (nicknameInput) {
+    nicknameInput.addEventListener('input', (e) => {
+        const val = e.target.value.trim();
+        if (val.length > 0) {
+            statusMessage.textContent = `💡 '${val}' 입력 중... 조회 버튼을 눌러주세요.`;
+            statusMessage.style.color = 'var(--primary-color)';
         } else {
-            // 캐릭터가 없거나 에러 발생 시 alert 창
-            const errorCode = data.error?.name || '';
-
-            if (response.status === 400 || response.status === 404) {
-                alert(`❌ 존재하지 않거나 정보를 찾을 수 없는 닉네임입니다.`);
-            } else if (response.status === 403 || errorCode === 'OPENAPI00005') {
-                alert(`⚠️ API 인증 오류가 발생했습니다. 관리자에게 문의하세요.`);
-            } else if (response.status === 429) {
-                alert(`⏳ 요청이 너무 많습니다. 잠시 후 다시 시도해주세요.`);
-            } else {
-                alert(`⚠️ 조회에 실패했습니다. (에러 코드: ${response.status})`);
-            }
+            statusMessage.textContent = '닉네임을 입력하고 조회 버튼을 누르세요.';
+            statusMessage.style.color = 'var(--text-sub)';
         }
-    } catch (error) {
-        alert('🚨 네트워크 연결에 실패했습니다.');
-    } finally {
-        searchBtn.disabled = false;
-        searchBtn.textContent = '캐릭터 등록';
+    });
+}
+
+let cachedSchedulerData = null;
+
+// 체크박스 토글(필터링)
+const completedFilterCheckbox = document.getElementById('completed-filter-checkbox');
+const filterLabel = document.getElementById('filter-label');
+
+if (completedFilterCheckbox) {
+    completedFilterCheckbox.addEventListener('change', (e) => {
+        const isChecked = e.target.checked;
+
+        if (isChecked) {
+            filterLabel.style.color = "var(--primary-color)";
+            filterLabel.style.fontWeight = "bold";
+        } else {
+            filterLabel.style.color = "var(--text-sub)";
+            filterLabel.style.fontWeight = "normal";
+        }
+
+        if (cachedSchedulerData) {
+            renderAllTasks(cachedSchedulerData, isChecked);
+        }
+    });
+}
+
+// 캐릭터 조회 및 API 정보 출력
+const searchForm = document.getElementById('search-form');
+const charCard = document.getElementById('character-card');
+const charImg = document.getElementById('char-image');
+const charName = document.getElementById('char-name');
+const charLevel = document.getElementById('char-level');
+const charClass = document.getElementById('char-class');
+
+const API_KEY = 'test_7c77f9a58ed9b5983de3f7c0416107c8ee337931376f5e766e7a1b817331e542efe8d04e6d233bd35cf2fabdeb93fb0d';
+
+if (searchForm) {
+    searchForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const nickname = nicknameInput.value.trim();
+        if (!nickname) return;
+
+        searchBtn.disabled = true;
+        searchBtn.textContent = '조회 중...';
+        statusMessage.textContent = `⏳ '${nickname}' 캐릭터 정보와 스케줄러를 조회하는 중입니다...`;
+
+        try {
+            const idUrl = 'https://open.api.nexon.com/maplestory/v1/id?character_name=' + encodeURIComponent(nickname);
+            const idRes = await fetch(idUrl, { headers: { 'x-nxopen-api-key': API_KEY } });
+            const idData = await idRes.json();
+
+            if (idRes.ok && idData.ocid) {
+                const basicUrl = `https://open.api.nexon.com/maplestory/v1/character/basic?ocid=${idData.ocid}`;
+                const basicRes = await fetch(basicUrl, { headers: { 'x-nxopen-api-key': API_KEY } });
+                const basicData = await basicRes.json();
+
+                const schedulerUrl = `https://open.api.nexon.com/maplestory/v1/scheduler/character-state?ocid=${idData.ocid}`;
+                const schedulerRes = await fetch(schedulerUrl, { headers: { 'x-nxopen-api-key': API_KEY } });
+                const schedulerData = schedulerRes.ok ? await schedulerRes.json() : null;
+
+                if (basicRes.ok) {
+                    statusMessage.textContent = `🎉 '${nickname}' 캐릭터 조회 및 스케줄러 연동 완료!`;
+
+                    charImg.src = basicData.character_image || '';
+                    charName.textContent = basicData.character_name;
+                    charLevel.textContent = `Lv.${basicData.character_level}`;
+                    charClass.textContent = basicData.character_class;
+
+                    if (schedulerData) {
+                        cachedSchedulerData = schedulerData;
+                        const onlyRegistered = completedFilterCheckbox ? completedFilterCheckbox.checked : true;
+                        renderAllTasks(schedulerData, onlyRegistered);
+                    }
+
+                    charCard.style.display = 'flex';
+                } else {
+                    throw new Error('캐릭터 정보를 가져오지 못했습니다.');
+                }
+            } else {
+                let errorMsg = '존재하지 않거나 정보를 찾을 수 없는 닉네임입니다.';
+                if (idRes.status === 403) errorMsg = 'API 인증 오류가 발생했습니다.';
+                else if (idRes.status === 429) errorMsg = '요청 한도를 초과했습니다.';
+
+                statusMessage.textContent = `❌ 조회 실패: ${errorMsg}`;
+                charCard.style.display = 'none';
+            }
+        } catch (error) {
+            statusMessage.textContent = '🚨 네트워크 연결 오류가 발생했습니다.';
+            console.error(error);
+            charCard.style.display = 'none';
+        } finally {
+            searchBtn.disabled = false;
+            searchBtn.textContent = '조회';
+        }
+    });
+}
+
+// 전체 숙제 항목 출력 및 렌더링 함수
+function renderAllTasks(schedulerData, onlyRegistered) {
+    const dailyListContainer = document.getElementById('daily-quest-list');
+    if (dailyListContainer && schedulerData.daily_contents) {
+        dailyListContainer.innerHTML = '';
+
+        schedulerData.daily_contents.forEach(item => {
+            if (onlyRegistered && item.registration_flag !== 'true') return;
+
+            const chip = document.createElement('div');
+            let isCompleted = false;
+            if (item.type === 'quest') {
+                isCompleted = item.quest_state === '2';
+            } else if (item.type === 'contents') {
+                isCompleted = item.now_count >= item.max_count && item.max_count > 0;
+            }
+
+            chip.className = `task-chip ${isCompleted ? 'completed' : ''}`;
+            let displayText = item.content_name;
+            if (item.content_name === '몬스터파크') {
+                displayText = `몬스터파크 (${item.now_count}/${item.max_count})`;
+            }
+
+            chip.innerHTML = `<span>${displayText}</span>`;
+            dailyListContainer.appendChild(chip);
+        });
     }
-});
+
+    const weeklyContentsListContainer = document.getElementById('weekly-contents-list');
+    if (weeklyContentsListContainer && schedulerData.weekly_contents) {
+        weeklyContentsListContainer.innerHTML = '';
+
+        schedulerData.weekly_contents.forEach(content => {
+            if (onlyRegistered && content.registration_flag !== 'true') return;
+
+            const chip = document.createElement('div');
+            let isCompleted = false;
+            let displayText = content.content_name;
+
+            if (content.content_name.includes('에픽 던전')) {
+                isCompleted = content.now_count > 0;
+                displayText = content.content_name;
+            } else if (content.content_name.includes('[길드]')) {
+                isCompleted = content.now_count > 0;
+                displayText = `${content.content_name} ${content.now_count}`;
+            } else {
+                isCompleted = content.now_count > 0;
+                if (content.max_count > 0) {
+                    displayText = `${content.content_name} (${content.now_count}/${content.max_count})`;
+                }
+            }
+
+            chip.className = `task-chip ${isCompleted ? 'completed' : ''}`;
+            chip.innerHTML = `<span>${displayText}</span>`;
+            weeklyContentsListContainer.appendChild(chip);
+        });
+    }
+
+    const weeklyBossListContainer = document.getElementById('weekly-boss-list');
+    const weeklyBossTitle = document.getElementById('weekly-boss-title');
+
+    if (weeklyBossListContainer && schedulerData.boss_contents) {
+        if (weeklyBossTitle && schedulerData.weekly_boss_clear_count !== undefined && schedulerData.weekly_boss_clear_limit_count !== undefined) {
+            weeklyBossTitle.textContent = `주간 보스 (${schedulerData.weekly_boss_clear_count}/${schedulerData.weekly_boss_clear_limit_count})`;
+        }
+
+        weeklyBossListContainer.innerHTML = '';
+
+        schedulerData.boss_contents
+            .filter(boss => boss.cycle === 'bossWeekly')
+            .forEach(boss => {
+                if (onlyRegistered && boss.registration_flag !== 'true') return;
+
+                const chip = document.createElement('div');
+                const isCompleted = boss.complete_flag === 'true';
+                chip.className = `task-chip boss-chip ${isCompleted ? 'completed' : ''}`;
+
+                let badgeClass = 'normal';
+                if (boss.difficulty === 'easy') badgeClass = 'easy';
+                else if (boss.difficulty === 'normal') badgeClass = 'normal';
+                else if (boss.difficulty === 'hard') badgeClass = 'hard';
+                else if (boss.difficulty === 'chaos') badgeClass = 'chaos';
+                else if (boss.difficulty === 'extreme') badgeClass = 'extreme';
+
+                const badgeText = boss.difficulty.charAt(0).toUpperCase();
+
+                chip.innerHTML = `
+                    <span class="badge ${badgeClass}">${badgeText}</span>
+                    <span>${boss.content_name}</span>
+                `;
+                weeklyBossListContainer.appendChild(chip);
+            });
+    }
+}

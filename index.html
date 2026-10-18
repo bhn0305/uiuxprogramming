@@ -5,93 +5,139 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>메이플 투두 | 광고 없는 숙제 체크 플래너</title>
-    <!-- CSS 연결 -->
+
+    <!-- 다크모드 깜빡임 방지 -->
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <!--
-        사용자: 메이플스토리 일일/주간 숙제를 효율적으로 관리하고 싶은 유저
-        목적: 광고 없이 쾌적하게 캐릭터 접속 없이 오늘 해야 할 일과 남은 보스를 한눈에 확인하기 위함
-        핵심 행동: 캐릭터 닉네임 입력 및 숙제 체크박스 확인
-        정보 순서: 서비스 소개 → 주요 기능 → 이용 방법 → 캐릭터 등록
-  -->
-
-    <div class="header-top">
-        <button id="theme-toggle" aria-label="다크모드 전환 버튼">🌙 다크모드</button>
-    </div>
-
     <header>
-        <h1>메이플 투두 (Maple To-Do)</h1>
-        <p>광고 없이 깔끔하게 내 숙제 현황을 한눈에 체크하는 개인 플래너</p>
+        <div class="header-inner">
+            <div class="header-top-row">
+                <div class="brand-zone">
+                    <h1 class="site-title">
+                        <a href="#" class="spa-nav-btn" data-target="section-register">🍁 메이플 투두</a>
+                    </h1>
+                    <span class="site-desc">광고 없이 깔끔한 숙제 체크 플래너</span>
+                </div>
 
-        <nav aria-label="주요 메뉴">
-            <a href="#about">서비스 소개</a>
-            <a href="#features">주요 기능</a>
-            <a href="#steps">이용 방법</a>
-            <a href="#register">캐릭터 등록</a>
-        </nav>
+                <div class="header-utils">
+                    <button id="theme-toggle" aria-label="다크모드 전환 버튼">🌙 Dark</button>
+                </div>
+            </div>
+
+            <nav class="main-nav" aria-label="주요 메뉴">
+                <button type="button" class="nav-item active spa-nav-btn" data-target="section-register">캐릭터 등록</button>
+                <button type="button" class="nav-item spa-nav-btn" data-target="section-intro">서비스 소개</button>
+                <button type="button" class="nav-item spa-nav-btn" data-target="section-features">주요 기능</button>
+                <button type="button" class="nav-item spa-nav-btn" data-target="section-guide">이용 방법</button>
+            </nav>
+        </div>
     </header>
 
     <main>
-        <section id="about">
+        <!-- 캐릭터 등록 및 조회 -->
+        <section id="section-register" class="spa-section">
+            <h2>캐릭터 등록 및 조회</h2>
+            <form id="search-form">
+                <label for="nickname">캐릭터 닉네임</label>
+                <div class="input-group">
+                    <input type="text" id="nickname" name="nickname" placeholder="메이플 닉네임을 입력하세요" required>
+                    <button type="submit" id="search-btn">조회</button>
+                </div>
+            </form>
+
+            <p id="status-message">닉네임을 입력하고 조회 버튼을 누르세요.</p>
+
+            <!-- 캐릭터 카드 -->
+            <div id="character-card" class="char-card">
+                <div class="char-profile">
+                    <div class="avatar-box">
+                        <img id="char-image" src="" alt="캐릭터 외형">
+                    </div>
+                    <div class="char-info">
+                        <span id="char-level" class="char-level">Lv.0</span>
+                        <h3 id="char-name" class="char-name">닉네임</h3>
+                        <p id="char-class" class="char-class">직업</p>
+                    </div>
+                </div>
+
+                <div class="char-tasks">
+                    <!-- 일일 숙제 -->
+                    <div class="task-group">
+                        <div class="task-group-header">
+                            <h4>일일 숙제</h4>
+                            <label for="completed-filter-checkbox" id="filter-label">
+                                <input type="checkbox" id="completed-filter-checkbox" checked>
+                                등록된 항목만 보기
+                            </label>
+                        </div>
+                        <div class="task-list" id="daily-quest-list"></div>
+                    </div>
+
+                    <!-- 주간 콘텐츠 -->
+                    <div class="task-group">
+                        <h4>주간 콘텐츠</h4>
+                        <div class="task-list" id="weekly-contents-list"></div>
+                    </div>
+
+                    <!-- 주간 보스 -->
+                    <div class="task-group">
+                        <h4 id="weekly-boss-title">주간 보스</h4>
+                        <div class="task-list" id="weekly-boss-list"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 서비스 소개 섹션 -->
+        <section id="section-intro" class="spa-section">
             <h2>서비스 소개</h2>
             <h3>귀찮은 숙제 체크는 이제 그만</h3>
             <p>매번 접속해서 확인하기 번거로운 일일 퀘스트와 보스 클리어 여부를 광고 없이 쾌적하게 관리하세요.</p>
-
             <img src="./assets/images/maple_service.jpg" alt="메이플스토리 인게임내 스케줄러">
         </section>
 
-        <section id="features">
+        <!-- 주요 기능 -->
+        <section id="section-features" class="spa-section">
             <h2>주요 기능</h2>
-
-            <ul>
-                <li>
+            <ul class="features-grid">
+                <li class="feature-card-item">
                     <h3>캐릭터 정보 조회</h3>
-                    <p>닉네임을 입력해 내 캐릭터 프로필과 레벨을 확인합니다.</p>
+                    <p class="feature-desc">닉네임을 입력해 내 캐릭터 프로필과 레벨을 확인합니다.</p>
                 </li>
-                <li>
+                <li class="feature-card-item">
                     <h3>일일 숙제 체크리스트</h3>
-                    <p>아케인리버 및 그란디스 일일 퀘스트 완료 여부를 체크합니다.</p>
+                    <p class="feature-desc">아케인리버 및 그란디스 일일 퀘스트 완료 여부를 체크합니다.</p>
                 </li>
-                <li>
+                <li class="feature-card-item">
                     <h3>주간 보스 현황판</h3>
-                    <p>클리어한 보스와 남은 보스 토벌 현황을 한눈에 파악합니다.</p>
+                    <p class="feature-desc">클리어한 보스와 남은 보스 토벌 현황을 한눈에 파악합니다.</p>
                 </li>
             </ul>
         </section>
 
-        <section id="steps">
+        <!-- 이용 방법 -->
+        <section id="section-guide" class="spa-section">
             <h2>이용 방법</h2>
-
-            <ol>
-                <li>내 메이플 캐릭터 닉네임을 입력합니다.</li>
-                <li>오늘 완료한 일일 퀘스트와 보스 항목에 체크합니다.</li>
-                <li>오늘의 숙제 달성률과 남은 콘텐츠를 확인합니다.</li>
+            <ol class="guide-list">
+                <li>조회할 메이플 캐릭터의 닉네임을 입력합니다.</li>
+                <li>체크박스를 이용해 인게임에 등록된 숙제와 전체 목록을 자유롭게 전환합니다.</li>
+                <li>오늘의 숙제 완료 여부와 보스 토벌 현황을 깔끔하게 확인합니다.</li>
             </ol>
-        </section>
-
-        <section id="register">
-            <h2>캐릭터 등록 및 조회</h2>
-            <form id="search-form">
-                <label for="nickname">캐릭터 닉네임</label>
-                <input type="text" id="nickname" name="nickname" placeholder="메이플 닉네임을 입력하세요" required>
-                <button type="submit" id="search-btn">검색 및 조회</button>
-            </form>
-
-            <!-- 결과 출력 및 상태 안내 영역 -->
-            <div id="result-container" style="margin-top: 20px; text-align: center;">
-                <p id="status-message" style="color: var(--text-sub);">닉네임을 입력하고 조회 버튼을 누르세요.</p>
-                <div id="character-info" style="display: none;">
-                    <img id="char-image" src="" alt="캐릭터 이미지" style="max-width: 150px; margin-top: 10px;">
-                    <h4 id="char-name" style="margin-top: 10px; color: var(--text-main);"></h4>
-                </div>
-            </div>
         </section>
     </main>
 
-    <footer>
-        <p>© 2026 메이플 투두 (Maple To-Do)</p>
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <p>© 2026 메이플 투두 (Maple To-Do)</p>
+        </div>
     </footer>
 
     <script src="script.js"></script>
