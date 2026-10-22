@@ -61,9 +61,39 @@ const searchBtn = document.getElementById('search-btn');
 
 if (nicknameInput) {
     nicknameInput.addEventListener('input', (e) => {
-        const val = e.target.value.trim();
-        if (val.length > 0) {
-            statusMessage.textContent = `💡 '${val}' 입력 중... 조회 버튼을 눌러주세요.`;
+        const val = e.target.value;
+
+        // 단독 자음 또는 모음 포함 여부 검사
+        const isolatedJamoRegex = /[ㄱ-ㅎㅏ-ㅣ]/;
+        if (isolatedJamoRegex.test(val)) {
+            statusMessage.textContent = '❌ 단독 자음이나 모음은 닉네임으로 사용할 수 없습니다.';
+            statusMessage.style.color = '#e63946';
+            return;
+        }
+
+        // 특수문자 포함 여부 검사
+        const specialCharRegex = /[^가-힣a-zA-Z0-9]/;
+        if (specialCharRegex.test(val)) {
+            statusMessage.textContent = '❌ 특수문자는 닉네임에 사용할 수 없습니다.';
+            statusMessage.style.color = '#e63946';
+            return;
+        }
+
+        // 글자수 제한 검사 (한글 포함 시 최대 8자, 영문/숫자만 있을 경우 최대 16자)
+        const hasKorean = /[가-힣]/.test(val);
+        const maxLength = hasKorean ? 8 : 16;
+
+        if (val.length > maxLength) {
+            e.target.value = val.slice(0, maxLength); // 초과 입력 방지
+            statusMessage.textContent = `❌ ${hasKorean ? '한글은 최대 8자' : '영문/숫자는 최대 16자'}까지 입력할 수 있습니다.`;
+            statusMessage.style.color = '#e63946';
+            return;
+        }
+
+        //정상 입력 중
+        const trimmedVal = val.trim();
+        if (trimmedVal.length > 0) {
+            statusMessage.textContent = `💡 '${trimmedVal}' 입력 중... 조회 버튼을 눌러주세요.`;
             statusMessage.style.color = 'var(--primary-color)';
         } else {
             statusMessage.textContent = '닉네임을 입력하고 조회 버튼을 누르세요.';
@@ -111,14 +141,34 @@ if (searchForm) {
         const nickname = nicknameInput.value.trim();
         if (!nickname) return;
 
+        // 유효성 재검사
+        const isolatedJamoRegex = /[ㄱ-ㅎㅏ-ㅣ]/;
+        if (isolatedJamoRegex.test(nickname)) {
+            statusMessage.textContent = '❌ 조회 실패: 단독 자음이나 모음은 사용할 수 없습니다.';
+            statusMessage.style.color = '#e63946';
+            return;
+        }
+
+        const specialCharRegex = /[^가-힣a-zA-Z0-9]/;
+        if (specialCharRegex.test(nickname)) {
+            statusMessage.textContent = '❌ 조회 실패: 특수문자는 사용할 수 없습니다.';
+            statusMessage.style.color = '#e63946';
+            return;
+        }
+
+        const hasKorean = /[가-힣]/.test(nickname);
+        const maxLength = hasKorean ? 8 : 16;
+        if (nickname.length > maxLength) {
+            statusMessage.textContent = `❌ 조회 실패: ${hasKorean ? '한글은 최대 8자' : '영문/숫자는 최대 16자'}까지 입력 가능합니다.`;
+            statusMessage.style.color = '#e63946';
+            return;
+        }
+
         searchBtn.disabled = true;
         searchBtn.textContent = '조회 중...';
         statusMessage.textContent = `⏳ '${nickname}' 캐릭터 정보와 스케줄러를 조회하는 중입니다...`;
 
         try {
-            // 내 백엔드 서버로 요청 전송 (API 키 노출 방지)
-            // const serverUrl = 'http://localhost:3000/api/character?nickname=' + encodeURIComponent(nickname);
-            // Render 서버 주소 적용
             const response = await fetch(`https://mapletodo.onrender.com/api/character?nickname=${nickname}`);
             const data = await response.json();
 
