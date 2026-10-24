@@ -53,11 +53,9 @@
 * 반응형: 모바일 화면으로 줄여도 UI가 깨지지 않고 깔끔하게 세로로 정렬됨
 
 8. 배포 주소
-- 웹페이지 주소: https://github.com/bhn0305/uiuxprogramming
-- GitHub 저장소 주소: https://bhn0305.github.io/uiuxprogramming/
+- 웹페이지 주소: https://bhn0305.github.io/uiuxprogramming/
+- GitHub 저장소 주소: https://github.com/bhn0305/uiuxprogramming
 
-
-9. 추가 사항
 **[서버 이용 안내]**
 본 서비스는 무료 외부 서버(Backend)를 사용하여 배포되어 있습니다.
 약 15분 동안 이용 기록이 없으면 서버가 일시적으로 대기 상태(슬립 모드)로 전환됩니다.
