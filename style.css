@@ -1,3 +1,6 @@
+/* ==========================================
+   전역 디자인 변수 및 다크모드 설정
+   ========================================== */
 :root {
     --bg-color: #f7f9fc;
     --card-bg: #ffffff;
@@ -9,7 +12,6 @@
     --feature-li-bg: #f4f3ff;
 }
 
-/* 다크모드 색상 */
 [data-theme="dark"] {
     --bg-color: #121418;
     --card-bg: #1e2229;
@@ -21,14 +23,16 @@
     --feature-li-bg: #242932;
 }
 
+/* ==========================================
+   기본 태그 초기화 및 레이아웃
+   ========================================== */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-html,
-body {
+html, body {
     height: 100%;
     margin: 0;
     padding: 0;
@@ -48,21 +52,17 @@ main {
     width: 100%;
     max-width: 1100px;
     margin: 40px auto;
-    padding-left: 24px;
-    padding-right: 24px;
-    background-color: transparent;
-    border: none;
+    padding: 0 24px;
     flex: 1;
 }
 
-/* 푸터 스타일 */
+/* 푸터 레이아웃 */
 footer.site-footer {
     width: 100%;
     background-color: var(--card-bg);
     border-top: 1px solid var(--border-color);
     padding: 24px 0;
     margin-top: 40px;
-    margin-bottom: 0;
     text-align: center;
     color: var(--text-sub);
     font-size: 0.9rem;
@@ -76,13 +76,12 @@ footer.site-footer {
 }
 
 /* ==========================================
-   상단 헤더 레이아웃
+   상단 헤더 및 네비게이션
    ========================================== */
 header {
     width: 100%;
     background-color: var(--card-bg);
     border-bottom: 1px solid var(--border-color);
-    padding: 0;
     transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
@@ -152,29 +151,28 @@ header {
     padding: 8px 0;
 }
 
-.nav-item {
+.main-nav .nav-item {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font: inherit;
     text-decoration: none;
     color: var(--text-main);
     font-weight: 600;
     font-size: 0.95rem;
     padding: 6px 14px;
     border-radius: 6px;
-    background-color: transparent;
     transition: all 0.2s ease;
 }
 
-.nav-item:hover {
-    background-color: var(--nav-bg);
-    color: var(--primary-color);
-}
-
-.nav-item.active {
+.main-nav .nav-item:hover,
+.main-nav .nav-item.active {
     color: var(--primary-color);
     background-color: var(--nav-bg);
 }
 
 /* ==========================================
-   본문 및 컴포넌트 스타일
+   섹션 및 폼 요소 스타일
    ========================================== */
 section {
     background-color: var(--card-bg);
@@ -184,6 +182,13 @@ section {
     border: 1px solid var(--border-color);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
     transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* SPA 화면 구분을 위해 초기 숨김 처리 */
+#section-intro,
+#section-features,
+#section-guide {
+    display: none;
 }
 
 section h2 {
@@ -258,7 +263,6 @@ form button:hover {
     background-color: #e06d00;
 }
 
-/* 검색 폼 레이아웃 */
 .input-group {
     display: flex;
     gap: 8px;
@@ -282,8 +286,12 @@ form button:hover {
 }
 
 /* ==========================================
-   캐릭터 카드 및 숙제 체크 UI (대시보드 스타일)
+   캐릭터 카드 대시보드 UI
    ========================================== */
+#character-card {
+    display: none; /* JS 조회 성공 시 flex 전환 */
+}
+
 .char-card {
     display: flex;
     flex-wrap: wrap;
@@ -296,7 +304,7 @@ form button:hover {
     transition: all 0.3s ease;
 }
 
-/* 프로필 영역 */
+/* 프로필 박스 */
 .char-profile {
     display: flex;
     flex-direction: column;
@@ -310,6 +318,7 @@ form button:hover {
 }
 
 .avatar-box {
+    position: relative;
     width: 140px;
     height: 140px;
     overflow: hidden;
@@ -317,7 +326,6 @@ form button:hover {
     justify-content: center;
     align-items: center;
     border-radius: 8px;
-    background-color: transparent;
 }
 
 .avatar-box img {
@@ -334,6 +342,20 @@ form button:hover {
     margin-top: 8px;
 }
 
+.char-name-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.char-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
 .char-level {
     font-size: 0.8rem;
     font-weight: bold;
@@ -343,19 +365,107 @@ form button:hover {
     border-radius: 12px;
 }
 
-.char-name {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-top: 4px;
-    color: var(--text-main);
-}
-
 .char-class {
     font-size: 0.85rem;
     color: var(--text-sub);
 }
 
-/* 숙제 목록 영역 */
+/* ==========================================
+   아바타 이미지 우측 상단 별 즐겨찾기 스타일
+   ========================================== */
+.favorite-star-label {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.45);
+    padding: 6px;
+    border-radius: 8px;
+    cursor: pointer;
+    backdrop-filter: blur(2px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.2s ease;
+}
+
+.favorite-star-label:hover {
+    background: rgba(0, 0, 0, 0.7);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: scale(1.05);
+}
+
+.favorite-star-label input[type="checkbox"] {
+    display: none;
+}
+
+.star-icon {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.8);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: all 0.2s ease;
+}
+
+.favorite-star-label:hover .star-icon {
+    stroke: #ffffff;
+}
+
+/* 별 체크 시 채우기 및 발광 효과 */
+.favorite-star-label input[type="checkbox"]:checked + .star-icon {
+    fill: var(--primary-color);
+    stroke: var(--primary-color);
+    filter: drop-shadow(0 0 5px var(--primary-color));
+}
+
+/* ==========================================
+   즐겨찾기 칩 목록 영역
+   ========================================== */
+.favorite-section {
+    margin-top: 20px;
+}
+
+.favorite-section h4 {
+    font-size: 0.95rem;
+    color: var(--text-sub);
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 4px;
+}
+
+.favorite-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--primary-color);
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.favorite-chip:hover {
+    background-color: var(--primary-color);
+    color: #ffffff;
+}
+
+.favorite-empty-text {
+    font-size: 0.85rem;
+    color: var(--text-sub);
+}
+
+/* ==========================================
+   숙제 현황 및 태그 칩
+   ========================================== */
 .char-tasks {
     flex: 1;
     display: flex;
@@ -364,99 +474,18 @@ form button:hover {
     min-width: 280px;
 }
 
-.task-group h4 {
-    font-size: 0.95rem;
-    color: var(--text-sub);
+.task-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 8px;
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 4px;
 }
 
-.task-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-/* 숙제 태그 기본 스타일 */
-.task-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--text-main);
-    user-select: none;
-    max-width: 100%;
-    word-break: break-all;
-}
-
-/* API 조건 충족(완료) 시 연두색 배경 적용 */
-.task-chip.completed {
-    background-color: #e6fcf5 !important;
-    border-color: #38d9a9 !important;
-    color: #0ca678 !important;
-}
-
-/* 다크모드 완료 시 연두색 배경 */
-[data-theme="dark"] .task-chip.completed {
-    background-color: rgba(56, 217, 169, 0.15) !important;
-    border-color: #38d9a9 !important;
-    color: #38d9a9 !important;
-}
-
-/* 보스 난이도 배지 스타일 */
-.badge {
-    display: inline-block;
-    width: 18px;
-    height: 18px;
-    line-height: 18px;
-    text-align: center;
-    font-size: 0.7rem;
-    font-weight: 800;
-    color: #fff;
-    border-radius: 4px;
-}
-
-.badge.easy { background-color: #6c757d; }
-.badge.normal { background-color: #0077b6; }
-.badge.hard { background-color: #e63946; }
-.badge.chaos { background-color: #6a0572; }
-.badge.extreme { background-color: #ffb703; color: #000; }
-
-/* ==========================================
-   인라인 스타일 대체용 신규 CSS 클래스 (전역 적용)
-   ========================================== */
-
-/* SPA 네비게이션 버튼 초기화 */
-.main-nav .nav-item {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font: inherit;
-}
-
-/* 캐릭터 카드 기본 숨김 처리 (JS에서 제어) */
-#character-card {
-    display: none;
-}
-
-/* 서비스 소개 등 기본 숨김 처리 섹션 (처음엔 캐릭터 등록만 보이도록) */
-#section-intro,
-#section-features,
-#section-guide {
-    display: none;
-}
-
-/* 일일 숙제 헤더 및 필터 정렬 */
-.task-group-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.task-group h4 {
+    font-size: 0.95rem;
+    color: var(--text-sub);
     margin-bottom: 8px;
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 4px;
@@ -481,7 +510,63 @@ form button:hover {
     cursor: pointer;
 }
 
-/* 주요 기능 그리드 리스트 */
+.task-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.task-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-main);
+    user-select: none;
+    max-width: 100%;
+    word-break: break-all;
+}
+
+/* 숙제 완료 상태 (연두색 강조) */
+.task-chip.completed {
+    background-color: #e6fcf5 !important;
+    border-color: #38d9a9 !important;
+    color: #0ca678 !important;
+}
+
+[data-theme="dark"] .task-chip.completed {
+    background-color: rgba(56, 217, 169, 0.15) !important;
+    border-color: #38d9a9 !important;
+    color: #38d9a9 !important;
+}
+
+/* 보스 난이도 배지 */
+.badge {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+    text-align: center;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #fff;
+    border-radius: 4px;
+}
+
+.badge.easy { background-color: #6c757d; }
+.badge.normal { background-color: #0077b6; }
+.badge.hard { background-color: #e63946; }
+.badge.chaos { background-color: #6a0572; }
+.badge.extreme { background-color: #ffb703; color: #000; }
+
+/* ==========================================
+   서비스 소개 및 이용안내 그리드
+   ========================================== */
 .features-grid {
     list-style: none;
     padding: 0;
@@ -502,7 +587,6 @@ form button:hover {
     margin-top: 8px;
 }
 
-/* 이용 방법 순서 목록 */
 .guide-list {
     padding-left: 20px;
     color: var(--text-sub);
@@ -514,7 +598,7 @@ form button:hover {
 }
 
 /* ==========================================
-   모바일 반응형 미디어 쿼리 (@media)
+   모바일 반응형 레이아웃
    ========================================== */
 @media (max-width: 768px) {
     body {
@@ -557,32 +641,12 @@ form button:hover {
         align-items: stretch;
     }
 
-    input,
-    button {
+    input, button {
         width: 100%;
     }
 
     button {
         min-height: 48px;
-    }
-
-    .task-group > div:first-child {
-        flex-wrap: wrap;
-        gap: 4px;
-    }
-
-    #filter-label {
-        font-size: 0.7rem;
-        white-space: nowrap;
-    }
-
-    .task-list {
-        gap: 6px;
-    }
-
-    .task-chip {
-        font-size: 0.8rem;
-        padding: 5px 10px;
     }
 
     .char-card {
