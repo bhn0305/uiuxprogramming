@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initThemeToggle();
     initSpaNavigation();
     renderFavorites(); // 저장된 즐겨찾기 목록 불러오기
-    renderCustomTasks(); // 나만의 숙제 목록 불러오기
+    initCustomTaskFilters(); // 나만의 숙제 필터 및 목록 렌더링 초기화
 });
 
 // ==========================================
@@ -33,48 +33,148 @@ function initThemeToggle() {
 }
 
 // ==========================================
-//  SPA 네비게이션 (새로고침 시 현재 탭 유지 기능 포함)
+//  SPA 네비게이션, 현재 위치(aria-current), 모바일 햄버거 메뉴
 // ==========================================
 function initSpaNavigation() {
     const navButtons = document.querySelectorAll('.spa-nav-btn');
+    const menuToggleBtn = document.getElementById('menu-toggle-btn');
+    const menuCloseBtn = document.getElementById('menu-close-btn');
+    const navList = document.getElementById('nav-list');
+    const navOverlay = document.getElementById('nav-overlay');
+
     if (navButtons.length === 0) return;
 
-    // 저장된 활성 섹션 불러오기 (기본값: section-register)
-    const savedSection = localStorage.getItem('maple_active_section') || 'section-register';
-    switchSection(savedSection);
+    // 메뉴 닫기
+    function closeMobileMenu() {
+        if (!navList || !menuToggleBtn) return;
 
+        navList.classList.remove('open');
+        document.body.classList.remove('menu-open');
+
+        menuToggleBtn.setAttribute('aria-expanded', 'false');
+        menuToggleBtn.setAttribute('aria-label', '메뉴 열기');
+    }
+
+    // 메뉴 열기
+    function openMobileMenu() {
+        if (!navList || !menuToggleBtn) return;
+
+        navList.classList.add('open');
+        document.body.classList.add('menu-open');
+
+        menuToggleBtn.setAttribute('aria-expanded', 'true');
+        menuToggleBtn.setAttribute('aria-label', '메뉴 닫기');
+    }
+
+    // 헤더의 메뉴 버튼
+    if (menuToggleBtn) {
+        menuToggleBtn.addEventListener('click', () => {
+            if (navList.classList.contains('open')) {
+                closeMobileMenu();
+            } else {
+                openMobileMenu();
+            }
+        });
+    }
+
+    // 사이드 메뉴 내부 X 버튼
+    if (menuCloseBtn) {
+        menuCloseBtn.addEventListener('click', closeMobileMenu);
+    }
+
+    // 메뉴 바깥쪽 클릭
+    if (navOverlay) {
+        navOverlay.addEventListener('click', closeMobileMenu);
+    }
+
+    // ESC 키
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeMobileMenu();
+        }
+    });
+
+    // 메뉴 항목 선택
     navButtons.forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
+
             const targetId = btn.getAttribute('data-target');
-            switchSection(targetId);
-            // 클릭한 섹션 ID를 localStorage에 저장하여 새로고침 후에도 유지
-            localStorage.setItem('maple_active_section', targetId);
+            switchSection(targetId, true);
+
+            closeMobileMenu();
         });
+    });
+
+    // 최초 접속 화면
+    const initialSection = window.location.hash
+        ? window.location.hash.substring(1)
+        : (localStorage.getItem('maple_active_section') || 'section-register');
+
+    switchSection(initialSection, false);
+
+    const activeMenu = document.querySelector(
+        '.main-nav .nav-item[aria-current="page"]'
+    );
+
+    const activeSection = activeMenu
+        ? activeMenu.getAttribute('data-target')
+        : 'section-register';
+
+    history.replaceState(
+        { section: activeSection },
+        '',
+        window.location.href
+    );
+
+    // 뒤로 가기 / 앞으로 가기
+    window.addEventListener('popstate', (e) => {
+        const targetId = (e.state && e.state.section)
+            ? e.state.section
+            : (window.location.hash
+                ? window.location.hash.substring(1)
+                : 'section-register');
+
+        switchSection(targetId, false);
+        closeMobileMenu();
+    });
+
+    // PC 화면으로 변경하면 메뉴 닫기
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+            closeMobileMenu();
+        }
     });
 }
 
-// 섹션 전환 공통 함수
-function switchSection(targetId) {
+function switchSection(targetId, pushHistory = false) {
     const navButtons = document.querySelectorAll('.spa-nav-btn');
     const sections = document.querySelectorAll('.spa-section');
 
-    navButtons.forEach(b => b.classList.remove('active'));
+    navButtons.forEach(b => {
+        b.classList.remove('active');
+        b.removeAttribute('aria-current');
+    });
+
+    const targetBtns = document.querySelectorAll(`.spa-nav-btn[data-target="${targetId}"]`);
+    if (targetBtns.length === 0) targetId = 'section-register';
+
     document.querySelectorAll(`.spa-nav-btn[data-target="${targetId}"]`).forEach(b => {
         b.classList.add('active');
+        b.setAttribute('aria-current', 'page');
     });
 
-    sections.forEach(sec => {
-        sec.style.display = 'none';
-    });
+    sections.forEach(sec => sec.style.display = 'none');
 
     const targetSection = document.getElementById(targetId);
-    if (targetSection) {
-        targetSection.style.display = 'block';
+    if (targetSection) targetSection.style.display = 'block';
+
+    if (pushHistory) {
+        history.pushState({ section: targetId }, '', `#${targetId}`);
     }
 
-    // 사용자가 다시 '캐릭터 조회' 섹션(section-register)으로 돌아왔을 때,
-    // 만약 조회된 캐릭터가 있다면 커스텀 숙제 목록을 자동으로 최신화(실시간 반영)
+    localStorage.setItem('maple_active_section', targetId);
+
     if (targetId === 'section-register') {
         const currentName = charName ? charName.textContent.trim() : '';
         if (currentName && currentName !== '닉네임' && charCard.style.display === 'flex') {
@@ -199,9 +299,7 @@ if (searchForm) {
                     renderAllTasks(schedulerData, onlyRegistered);
                 }
 
-                // 커스텀 숙제 목록
                 renderCustomTasksForCharacter(basicData.character_name);
-
                 charCard.style.display = 'flex';
             } else {
                 let errorMsg = data.error || '존재하지 않거나 정보를 찾을 수 없는 닉네임입니다.';
@@ -305,8 +403,6 @@ if (favoriteCheckbox) {
         }
         localStorage.setItem('maple_favorites', JSON.stringify(favorites));
         renderFavorites();
-
-        // 커스텀 숙제 영역 실시간 갱신
         renderCustomTasksForCharacter(currentNickname);
     });
 }
@@ -341,7 +437,7 @@ function updateFavoriteButtonState(nickname) {
 }
 
 // ==========================================
-//  나만의 숙제 폼 입력 검증 및 실시간 렌더링
+//  나만의 숙제
 // ==========================================
 const customTaskForm = document.getElementById('custom-task-form');
 const taskNameInput = document.getElementById('task-name');
@@ -356,6 +452,28 @@ const bossError = document.getElementById('boss-error');
 const taskSubmitBtn = document.getElementById('task-submit-btn');
 const formFeedbackMsg = document.getElementById('form-feedback-msg');
 const customTaskListContainer = document.getElementById('custom-task-list');
+const customTaskCount = document.getElementById('custom-task-count');
+const customTaskEmptyMsg = document.getElementById('custom-task-empty-msg');
+
+let currentCustomFilter = 'all'; // 기본 필터: 'all'
+
+function initCustomTaskFilters() {
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterButtons.forEach(b => {
+                b.classList.remove('active');
+                b.setAttribute('aria-pressed', 'false');
+            });
+            btn.classList.add('active');
+            btn.setAttribute('aria-pressed', 'true'); // aria-pressed 반영
+
+            currentCustomFilter = btn.getAttribute('data-filter');
+            renderCustomTasks();
+        });
+    });
+    renderCustomTasks();
+}
 
 if (taskCategorySelect) {
     taskCategorySelect.addEventListener('change', (e) => {
@@ -423,13 +541,12 @@ if (customTaskForm) {
 
         setTimeout(() => {
             try {
-                const taskAlarmCheckbox = document.getElementById('task-alarm'); // 👈 상단이나 제출 블록 내부에 선언 확인
-
+                const taskAlarmCheckbox = document.getElementById('task-alarm');
                 const newTask = {
                     name: taskName,
                     category: category,
                     difficulty: bossDiff || null,
-                    alarm: taskAlarmCheckbox ? taskAlarmCheckbox.checked : false, // 👈 [핵심] 체크박스 상태값 연동 저장
+                    alarm: taskAlarmCheckbox ? taskAlarmCheckbox.checked : false,
                     date: new Date().toLocaleDateString()
                 };
 
@@ -437,7 +554,6 @@ if (customTaskForm) {
                 savedCustomTasks.push(newTask);
                 localStorage.setItem('maple_custom_tasks', JSON.stringify(savedCustomTasks));
 
-                // 즉시 실시간 화면 렌더링 호출
                 renderCustomTasks();
 
                 formFeedbackMsg.style.color = '#0ca678';
@@ -463,16 +579,39 @@ function renderCustomTasks() {
     customTaskListContainer.innerHTML = '';
 
     const savedTasks = JSON.parse(localStorage.getItem('maple_custom_tasks') || '[]');
+    const totalCount = savedTasks.length;
 
-    if (savedTasks.length === 0) {
-        const emptySpan = document.createElement('span');
-        emptySpan.className = 'favorite-empty-text';
-        emptySpan.textContent = '등록된 나만의 숙제가 없습니다. 위 폼을 통해 등록해 보세요!';
-        customTaskListContainer.appendChild(emptySpan);
+    // 3가지 필터링 조건 적용 (all, general, boss)
+    const filteredTasks = savedTasks.filter(task => {
+        if (currentCustomFilter === 'general') {
+            return task.category === 'daily' || task.category === 'weekly';
+        } else if (currentCustomFilter === 'boss') {
+            return task.category === 'boss';
+        }
+        return true; // 'all'
+    });
+
+    if (customTaskCount) {
+        customTaskCount.textContent = `(총 ${filteredTasks.length}개)`;
+    }
+
+    // 빈 화면 분기 안내 (전체 목록이 없는 경우 vs 선택한 조건에 맞는 결과만 없는 경우)
+    if (totalCount === 0) {
+        customTaskEmptyMsg.style.display = 'block';
+        customTaskEmptyMsg.textContent = '📭 등록된 나만의 숙제가 없습니다. 위 폼을 통해 새로운 숙제를 등록해 보세요!';
         return;
     }
 
-    savedTasks.forEach((task, index) => {
+    if (filteredTasks.length === 0) {
+        customTaskEmptyMsg.style.display = 'block';
+        customTaskEmptyMsg.textContent = '🔍 선택한 조건에 맞는 숙제가 없습니다. 다른 필터를 선택하거나 새로운 숙제를 추가해 보세요.';
+        return;
+    }
+
+    customTaskEmptyMsg.style.display = 'none';
+
+    filteredTasks.forEach((task) => {
+        const index = savedTasks.indexOf(task);
         const chip = document.createElement('div');
         chip.className = 'task-chip';
 
@@ -494,7 +633,7 @@ function renderCustomTasks() {
         chip.innerHTML = `
             ${badgeHtml}
             <span>[${categoryLabel}] ${task.name}</span>
-            <button type="button" class="delete-task-btn" data-index="${index}" style="background:none; border:none; color:#e63946; cursor:pointer; margin-left:6px; font-weight:bold;">×</button>
+            <button type="button" class="delete-task-btn" data-index="${index}" style="background:none; border:none; color:#e63946; cursor:pointer; margin-left:6px; font-weight:bold;" aria-label="삭제">×</button>
         `;
 
         const deleteBtn = chip.querySelector('.delete-task-btn');
@@ -508,11 +647,7 @@ function renderCustomTasks() {
     });
 }
 
-
-
-// ==========================================
-//  캐릭터 조회 시 커스텀 숙제 렌더링 및 완료/미완료 토글
-// ==========================================
+// 캐릭터 조회 시 커스텀 숙제 렌더링
 const customFilterCheckbox = document.getElementById('custom-filter-checkbox');
 const customFilterLabel = document.getElementById('custom-filter-label');
 
@@ -520,8 +655,6 @@ if (customFilterCheckbox) {
     customFilterCheckbox.addEventListener('change', (e) => {
         const isChecked = e.target.checked;
         customFilterLabel.style.color = isChecked ? "var(--primary-color)" : "var(--text-sub)";
-
-        // 현재 조회된 캐릭터가 있다면 화면 갱신
         const currentName = charName.textContent.trim();
         if (currentName && currentName !== '닉네임') {
             renderCustomTasksForCharacter(currentName);
@@ -529,20 +662,14 @@ if (customFilterCheckbox) {
     });
 }
 
-
-// ==========================================
-//  즐겨찾기된 캐릭터 전용 커스텀 숙제 렌더링
-// ==========================================
 function renderCustomTasksForCharacter(characterName) {
     const container = document.getElementById('char-custom-task-list');
     const customTaskGroupWrapper = container ? container.closest('.task-group') : null;
     if (!container || !customTaskGroupWrapper) return;
 
-    // 현재 조회 중인 캐릭터가 즐겨찾기(maple_favorites)에 등록되어 있는지 확인
     const favorites = getFavorites();
     const isFavorite = favorites.includes(characterName);
 
-    // 즐겨찾기가 안 된 캐릭터라면 커스텀 숙제 영역(그룹 전체)을 숨김 처리
     if (!isFavorite) {
         customTaskGroupWrapper.style.display = 'none';
         return;
@@ -551,23 +678,18 @@ function renderCustomTasksForCharacter(characterName) {
     customTaskGroupWrapper.style.display = 'block';
     container.innerHTML = '';
 
-    // 보기 체크박스가 꺼져있으면 렌더링 안 함
     if (customFilterCheckbox && !customFilterCheckbox.checked) return;
 
-    // 저장된 커스텀 숙제 불러오기
     const savedTasks = JSON.parse(localStorage.getItem('maple_custom_tasks') || '[]');
-    // 캐릭터별 완료 상태 저장소
     const completionMap = JSON.parse(localStorage.getItem(`maple_task_status_${characterName}`) || '{}');
 
     if (savedTasks.length === 0) {
-        container.innerHTML = `<span class="favorite-empty-text">등록된 커스텀 숙제가 없습니다. '숙제 등록' 탭에서 추가해 보세요!</span>`;
+        container.innerHTML = `<span class="favorite-empty-text">등록된 커스텀 숙제가 없습니다. '나만의 숙제 관리' 탭에서 추가해 보세요!</span>`;
         return;
     }
 
     savedTasks.forEach((task, index) => {
         const chip = document.createElement('div');
-
-        // 완료 여부 확인
         const isCompleted = completionMap[index] || false;
 
         chip.className = `task-chip ${isCompleted ? 'completed' : ''}`;
@@ -596,11 +718,9 @@ function renderCustomTasksForCharacter(characterName) {
             </span>
         `;
 
-        // 해당 캐릭터의 완료/미완료 상태 토글
         chip.addEventListener('click', () => {
             const currentStatus = completionMap[index] || false;
             completionMap[index] = !currentStatus;
-
             localStorage.setItem(`maple_task_status_${characterName}`, JSON.stringify(completionMap));
             renderCustomTasksForCharacter(characterName);
         });
@@ -610,32 +730,30 @@ function renderCustomTasksForCharacter(characterName) {
 }
 
 // ==========================================
-//  접속 시 숙제 알림 팝업 및 기간 체크 시스템
+//  접속 시 숙제 알림 모달
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
-    checkAndShowAlarmModal(); // 접속 시 알림 모달 검사 실행
+    checkAndShowAlarmModal();
 });
 
 function checkAndShowAlarmModal() {
     const modal = document.getElementById('custom-alarm-modal');
     if (!modal) return;
 
-    // 숨김 처리 기한 체크 (localStorage에 저장된 만료 시간 확인)
     const hideUntil = localStorage.getItem('maple_alarm_hide_until');
     if (hideUntil) {
         const nowTime = new Date().getTime();
         if (nowTime < parseInt(hideUntil, 10)) {
-            return; // 아직 숨김 기한이 남았으므로 팝업을 띄우지 않음
+            return;
         } else {
-            localStorage.removeItem('maple_alarm_hide_until'); // 기한 만료 시 저장소 정리
+            localStorage.removeItem('maple_alarm_hide_until');
         }
     }
 
-    // 저장된 커스텀 숙제 중 '알림 받기(taskAlarm === true)'가 체크된 항목 필터링
     const savedTasks = JSON.parse(localStorage.getItem('maple_custom_tasks') || '[]');
     const alarmTasks = savedTasks.filter(task => task.alarm === true);
 
-    if (alarmTasks.length === 0) return; // 알림 대상이 없으면 팝업 안 뜸
+    if (alarmTasks.length === 0) return;
 
     const modalTaskList = document.getElementById('modal-task-list');
     modalTaskList.innerHTML = '';
@@ -654,61 +772,45 @@ function checkAndShowAlarmModal() {
     const hideTodayCheckbox = document.getElementById('alarm-hide-option');
     const hideWeekCheckbox = document.getElementById('alarm-hide-option-week');
 
-    hideTodayCheckbox.addEventListener('change', () => {
-        if (hideTodayCheckbox.checked) hideWeekCheckbox.checked = false;
-    });
-    hideWeekCheckbox.addEventListener('change', () => {
-        if (hideWeekCheckbox.checked) hideTodayCheckbox.checked = false;
-    });
+    if (hideTodayCheckbox && hideWeekCheckbox) {
+        hideTodayCheckbox.addEventListener('change', () => {
+            if (hideTodayCheckbox.checked) hideWeekCheckbox.checked = false;
+        });
+        hideWeekCheckbox.addEventListener('change', () => {
+            if (hideWeekCheckbox.checked) hideTodayCheckbox.checked = false;
+        });
+    }
 
     const closeModalHandler = () => {
         const now = new Date().getTime();
-        if (hideTodayCheckbox.checked) {
-            // 하루
+        if (hideTodayCheckbox && hideTodayCheckbox.checked) {
             const expireTime = now + (24 * 60 * 60 * 1000);
             localStorage.setItem('maple_alarm_hide_until', expireTime);
-        } else if (hideWeekCheckbox.checked) {
-            // 일주일
+        } else if (hideWeekCheckbox && hideWeekCheckbox.checked) {
             const expireTime = now + (7 * 24 * 60 * 60 * 1000);
             localStorage.setItem('maple_alarm_hide_until', expireTime);
         }
         modal.style.display = 'none';
     };
 
-    closeBtn.onclick = closeModalHandler;
-    confirmBtn.onclick = closeModalHandler;
+    if (closeBtn) closeBtn.onclick = closeModalHandler;
+    if (confirmBtn) confirmBtn.onclick = closeModalHandler;
 }
 
-// ==========================================
-//  알림 숨김 기간 테스트용 초기화 기능 
-// ==========================================
-const resetAlarmTimerBtn = document.getElementById('reset-alarm-timer-btn');
+// 알림 숨김 기간 테스트용 초기화 버튼
+// const resetAlarmTimerBtn = document.getElementById('reset-alarm-timer-btn');
+// if (resetAlarmTimerBtn) {
+//     resetAlarmTimerBtn.onclick = () => {
+//         localStorage.removeItem('maple_alarm_hide_until');
+//         const savedTasks = JSON.parse(localStorage.getItem('maple_custom_tasks') || '[]');
+//         const alarmTasks = savedTasks.filter(task => task.alarm === true);
 
-if (resetAlarmTimerBtn) {
-    resetAlarmTimerBtn.onclick = () => {
-        localStorage.removeItem('maple_alarm_hide_until');
-        
-        const savedTasks = JSON.parse(localStorage.getItem('maple_custom_tasks') || '[]');
-        console.log('현재 저장된 커스텀 숙제 목록:', savedTasks);
-        
-        const alarmTasks = savedTasks.filter(task => task.alarm === true);
-        console.log('알림이 켜진 숙제 개수:', alarmTasks.length);
+//         if (alarmTasks.length === 0) {
+//             alert('⚠️ 알림 팝업에 띄울 숙제가 없습니다!\n👉 [나만의 숙제 관리] 탭에서 "접속 시 숙제 알림 팝업 받기" 체크박스를 켠 후 숙제를 새로 등록해 주세요.');
+//             return;
+//         }
 
-        if (alarmTasks.length === 0) {
-            alert('⚠️ 알림 팝업에 띄울 숙제가 없습니다!\n' +
-                  '👉 [숙제 등록] 탭에서 "접속 시 숙제 알림 팝업 받기" 체크박스를 켠 후 숙제를 새로 등록해 주세요.');
-            return;
-        }
-
-        alert('✨ 알림 숨김 기한이 초기화되었습니다! 모달 창을 띄웁니다.');
-        
-        if (typeof checkAndShowAlarmModal === 'function') {
-            checkAndShowAlarmModal();
-        } else {
-            const modal = document.getElementById('custom-alarm-modal');
-            if (modal) modal.style.display = 'flex';
-        }
-    };
-} else {
-    console.warn('⚠️ reset-alarm-timer-btn 버튼을 HTML에서 찾지 못했습니다.');
-}
+//         alert('✨ 알림 숨김 기한이 초기화되었습니다! 모달 창을 띄웁니다.');
+//         checkAndShowAlarmModal();
+//     };
+// }

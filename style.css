@@ -145,11 +145,45 @@ header {
     color: var(--primary-color);
 }
 
-.main-nav {
+
+/* 헤더 우측 버튼 영역 */
+.header-utils {
     display: flex;
     align-items: center;
     gap: 8px;
+}
+
+/* 사이드 메뉴 닫기 영역은 모바일에서만 표시 */
+.nav-close-row {
+    display: none;
+}
+
+/* 모바일 메뉴 토글 버튼 (PC에서는 숨김) */
+.menu-toggle-btn {
+    display: none;
+    background: none;
+    border: 1px solid var(--border-color);
+    padding: 6px 12px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: var(--text-main);
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.main-nav {
+    display: flex;
+    align-items: center;
     padding: 8px 0;
+}
+
+.nav-list {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
 }
 
 .main-nav .nav-item {
@@ -164,12 +198,19 @@ header {
     padding: 6px 14px;
     border-radius: 6px;
     transition: all 0.2s ease;
+    display: block;
 }
 
-.main-nav .nav-item:hover,
-.main-nav .nav-item.active {
+.main-nav .nav-item:hover {
     color: var(--primary-color);
     background-color: var(--nav-bg);
+}
+
+/* 현재 위치 표시 (aria-current가 적용된 메뉴 강조) */
+.main-nav .nav-item[aria-current="page"] {
+    color: #ffffff;
+    background-color: var(--primary-color);
+    font-weight: 700;
 }
 
 /* ==========================================
@@ -185,10 +226,10 @@ section {
     transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-/* SPA 화면 구분을 위해 초기 숨김 처리 */
 #section-intro,
 #section-features,
-#section-guide {
+#section-guide,
+#section-custom-task {
     display: none;
 }
 
@@ -246,7 +287,7 @@ form input[type="text"]:focus {
     border-color: var(--primary-color);
 }
 
-form button {
+form button[type="submit"] {
     width: 100%;
     min-height: 48px;
     padding: 12px;
@@ -260,7 +301,7 @@ form button {
     transition: background-color 0.2s;
 }
 
-form button:hover {
+form button[type="submit"]:hover {
     background-color: #e06d00;
 }
 
@@ -272,12 +313,15 @@ form button:hover {
 
 .input-group input {
     flex: 1;
+    min-width: 0;
 }
 
 .input-group button {
     width: auto;
+    min-height: 48px;
     padding: 0 24px;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 
 #status-message {
@@ -287,11 +331,41 @@ form button:hover {
 }
 
 /* ==========================================
-   캐릭터 카드 대시보드 UI
+   목록 필터 버튼 스타일
+   ========================================== */
+.filter-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+.filter-btn {
+    background-color: var(--bg-color);
+    color: var(--text-sub);
+    border: 1px solid var(--border-color);
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.filter-btn.active {
+    background-color: var(--primary-color);
+    color: #ffffff;
+    border-color: var(--primary-color);
+}
+
+/* ==========================================
+   캐릭터 카드 및 기타 UI 스타일
    ========================================== */
 #character-card {
     display: none;
-    /* JS 조회 성공 시 flex 전환 */
 }
 
 .char-card {
@@ -306,7 +380,6 @@ form button:hover {
     transition: all 0.3s ease;
 }
 
-/* 프로필 박스 */
 .char-profile {
     display: flex;
     flex-direction: column;
@@ -372,9 +445,6 @@ form button:hover {
     color: var(--text-sub);
 }
 
-/* ==========================================
-   아바타 이미지 우측 상단 별 즐겨찾기 스타일
-   ========================================== */
 .favorite-star-label {
     position: absolute;
     top: 6px;
@@ -392,12 +462,6 @@ form button:hover {
     transition: all 0.2s ease;
 }
 
-.favorite-star-label:hover {
-    background: rgba(0, 0, 0, 0.7);
-    border-color: rgba(255, 255, 255, 0.4);
-    transform: scale(1.05);
-}
-
 .favorite-star-label input[type="checkbox"] {
     display: none;
 }
@@ -410,23 +474,14 @@ form button:hover {
     stroke-width: 2;
     stroke-linecap: round;
     stroke-linejoin: round;
-    transition: all 0.2s ease;
 }
 
-.favorite-star-label:hover .star-icon {
-    stroke: #ffffff;
-}
-
-/* 별 체크 시 채우기 및 발광 효과 */
 .favorite-star-label input[type="checkbox"]:checked+.star-icon {
     fill: var(--primary-color);
     stroke: var(--primary-color);
     filter: drop-shadow(0 0 5px var(--primary-color));
 }
 
-/* ==========================================
-   즐겨찾기 칩 목록 영역
-   ========================================== */
 .favorite-section {
     margin-top: 20px;
 }
@@ -451,7 +506,6 @@ form button:hover {
     font-weight: 600;
     color: var(--text-main);
     cursor: pointer;
-    transition: all 0.2s ease;
     user-select: none;
 }
 
@@ -465,9 +519,6 @@ form button:hover {
     color: var(--text-sub);
 }
 
-/* ==========================================
-   숙제 현황 및 태그 칩
-   ========================================== */
 .char-tasks {
     flex: 1;
     display: flex;
@@ -508,10 +559,6 @@ form button:hover {
     gap: 4px;
 }
 
-#completed-filter-checkbox {
-    cursor: pointer;
-}
-
 .task-list {
     display: flex;
     flex-wrap: wrap;
@@ -534,7 +581,6 @@ form button:hover {
     word-break: break-all;
 }
 
-/* 숙제 완료 상태 (연두색 강조) */
 .task-chip.completed {
     background-color: #e6fcf5 !important;
     border-color: #38d9a9 !important;
@@ -547,7 +593,6 @@ form button:hover {
     color: #38d9a9 !important;
 }
 
-/* 보스 난이도 배지 */
 .badge {
     display: inline-block;
     width: 18px;
@@ -560,30 +605,12 @@ form button:hover {
     border-radius: 4px;
 }
 
-.badge.easy {
-    background-color: #6c757d;
-}
+.badge.easy { background-color: #6c757d; }
+.badge.normal { background-color: #0077b6; }
+.badge.hard { background-color: #e63946; }
+.badge.chaos { background-color: #6a0572; }
+.badge.extreme { background-color: #ffb703; color: #000; }
 
-.badge.normal {
-    background-color: #0077b6;
-}
-
-.badge.hard {
-    background-color: #e63946;
-}
-
-.badge.chaos {
-    background-color: #6a0572;
-}
-
-.badge.extreme {
-    background-color: #ffb703;
-    color: #000;
-}
-
-/* ==========================================
-   서비스 소개 및 이용안내 그리드
-   ========================================== */
 .features-grid {
     list-style: none;
     padding: 0;
@@ -614,9 +641,6 @@ form button:hover {
     margin-bottom: 8px;
 }
 
-/* ==========================================
-   입력 폼 및 조건부 입력 스타일 추가
-   ========================================== */
 .form-control-group {
     display: flex;
     flex-direction: column;
@@ -635,176 +659,9 @@ form button:hover {
     outline: none;
 }
 
-.form-control-group select:focus {
-    border-color: var(--primary-color);
-}
-
-.required {
-    color: #e63946;
-}
-
-.help-text {
-    font-size: 0.85rem;
-    color: var(--text-sub);
-}
-
-.error-msg {
-    font-size: 0.85rem;
-    color: #e63946;
-    margin-top: 2px;
-}
-
-.conditional-box {
-    padding: 16px;
-    background-color: var(--nav-bg);
-    border: 1px dashed var(--primary-color);
-    border-radius: 8px;
-    margin-bottom: 16px;
-    animation: fadeIn 0.3s ease;
-}
-
-.form-checkbox-group {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.form-checkbox-group label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    font-weight: normal;
-}
-
-.feedback-msg {
-    font-size: 0.95rem;
-    font-weight: bold;
-    margin-top: 8px;
-    text-align: center;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-4px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* ==========================================
-   모바일 반응형 레이아웃
-   ========================================== */
-@media (max-width: 768px) {
-    body {
-        font-size: 16px;
-    }
-
-    .header-top-row {
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-
-    .site-desc {
-        display: none;
-    }
-
-    .main-nav {
-        gap: 4px;
-    }
-
-    .nav-item {
-        font-size: 0.88rem;
-        padding: 6px 10px;
-    }
-
-    section {
-        margin-top: 20px;
-        padding: 20px;
-    }
-
-    section h2 {
-        font-size: 24px;
-    }
-
-    .features-grid {
-        grid-template-columns: 1fr;
-    }
-
-    form {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    input,
-    button {
-        width: 100%;
-    }
-
-    button {
-        min-height: 48px;
-    }
-
-    .char-card {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .char-profile {
-        width: 100%;
-        min-width: 0;
-        flex-direction: row;
-        justify-content: flex-start;
-        gap: 20px;
-        padding: 16px 20px;
-    }
-}
-
-/* SPA 화면 구분을 위해 초기 숨김 처리 목록에 추가 */
-#section-intro,
-#section-features,
-#section-guide,
-#section-custom-task {
-    display: none;
-}
-
-/* 폼 내부 컨트롤 스타일 */
-.form-control-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 16px;
-}
-
-.form-control-group select {
-    width: 100%;
-    padding: 12px;
-    font-size: 1rem;
-    border: 1px solid var(--border-color);
-    background-color: var(--bg-color);
-    color: var(--text-main);
-    border-radius: 6px;
-    outline: none;
-}
-
-.required {
-    color: #e63946;
-}
-
-.help-text {
-    font-size: 0.85rem;
-    color: var(--text-sub);
-}
-
-.error-msg {
-    font-size: 0.85rem;
-    color: #e63946;
-    margin-top: 2px;
-}
+.required { color: #e63946; }
+.help-text { font-size: 0.85rem; color: var(--text-sub); }
+.error-msg { font-size: 0.85rem; color: #e63946; margin-top: 2px; }
 
 .conditional-box {
     padding: 16px;
@@ -835,9 +692,7 @@ form button:hover {
     text-align: center;
 }
 
-/* ==========================================
-   숙제 알림 커스텀 모달 스타일
-   ========================================== */
+/* 모달 스타일 */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -850,7 +705,6 @@ form button:hover {
     align-items: center;
     z-index: 1000;
     backdrop-filter: blur(3px);
-    animation: fadeInModal 0.3s ease;
 }
 
 .modal-card {
@@ -874,25 +728,9 @@ form button:hover {
     padding-bottom: 12px;
 }
 
-.modal-header h3 {
-    font-size: 1.15rem;
-    color: var(--text-main);
-    margin: 0;
-}
-
-.modal-close-x {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: var(--text-sub);
-    cursor: pointer;
-}
-
-.modal-body p {
-    color: var(--text-sub);
-    font-size: 0.95rem;
-    margin-bottom: 12px;
-}
+.modal-header h3 { font-size: 1.15rem; color: var(--text-main); margin: 0; }
+.modal-close-x { background: none; border: none; font-size: 1.5rem; color: var(--text-sub); cursor: pointer; }
+.modal-body p { color: var(--text-sub); font-size: 0.95rem; margin-bottom: 12px; }
 
 .modal-task-list {
     display: flex;
@@ -921,12 +759,6 @@ form button:hover {
     padding-top: 12px;
 }
 
-.modal-checkbox-row {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
 .modal-checkbox-row label {
     display: flex;
     align-items: center;
@@ -947,11 +779,243 @@ form button:hover {
     width: 100%;
 }
 
-.modal-confirm-btn:hover {
-    opacity: 0.9;
+/* 검색 입력창과 버튼 가로 배치 유지 */
+form .input-group {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 8px;
+    margin-top: 8px;
+    align-items: stretch;
 }
 
-@keyframes fadeInModal {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1.0); }
+form .input-group input[type="text"] {
+    flex: 1;
+    width: auto;
+    margin: 0;
+}
+
+form .input-group button {
+    width: auto !important;
+    min-height: auto !important;
+    padding: 0 24px;
+    white-space: nowrap;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+
+/* ==========================================
+   모바일 반응형 레이아웃 및 사이드 메뉴
+   ========================================== */
+@media (max-width: 768px) {
+    body {
+        font-size: 16px;
+    }
+
+    /* 상단 헤더 고정 */
+    header {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .header-inner {
+        padding: 0 16px;
+    }
+
+    .header-top-row {
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 0;
+    }
+
+    .brand-zone {
+        min-width: 0;
+    }
+
+    .site-title {
+        font-size: 1.15rem;
+    }
+
+    .site-desc {
+        display: none;
+    }
+
+    .header-utils {
+        margin-left: auto;
+        gap: 8px;
+    }
+
+    /* 모바일 메뉴 열기 버튼 */
+    .menu-toggle-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 10px;
+        font-size: 1.15rem;
+        white-space: nowrap;
+        background: transparent;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        color: var(--text-main);
+        cursor: pointer;
+    }
+
+    /* 네비게이션 영역은 헤더 아래에서 레이아웃 공간을 차지하지 않음 */
+    .main-nav {
+        display: block;
+        padding: 0;
+    }
+
+    /* 오른쪽에서 슬라이드되는 메뉴 패널 */
+    .main-nav .nav-list {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: min(80vw, 320px);
+        height: 100vh;
+        height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        padding: 16px 20px 24px;
+        margin: 0;
+        background-color: var(--card-bg);
+        border-left: 1px solid var(--border-color);
+        box-shadow: -8px 0 24px rgba(0, 0, 0, 0.2);
+        overflow-y: auto;
+        transform: translateX(100%);
+        visibility: hidden;
+        transition: transform 0.3s ease, visibility 0.3s ease;
+        z-index: 1002;
+    }
+
+    .main-nav .nav-list.open {
+        transform: translateX(0);
+        visibility: visible;
+    }
+
+    /* 사이드 메뉴 내부 닫기 버튼 */
+    .nav-close-row {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 12px;
+        list-style: none;
+    }
+
+    #menu-close-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        padding: 0;
+        font-size: 1.8rem;
+        font-weight: 300;
+        line-height: 1;
+        color: var(--text-main);
+        background: transparent;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    #menu-close-btn:hover {
+        background-color: var(--nav-bg);
+        color: var(--primary-color);
+    }
+
+    /* 메뉴 항목 */
+    .main-nav .nav-item {
+        display: block;
+        width: 100%;
+        padding: 14px 12px;
+        text-align: left;
+        font-size: 1rem;
+        border-radius: 8px;
+    }
+
+    .main-nav .nav-item[aria-current="page"] {
+        background-color: var(--primary-color);
+        color: #ffffff;
+    }
+
+    /* 메뉴 뒤쪽 클릭 영역 및 어두운 오버레이 */
+    .nav-overlay {
+        display: block;
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        margin: 0;
+        background: rgba(0, 0, 0, 0.55);
+        border: none;
+        border-radius: 0;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+        z-index: 1001;
+    }
+
+    body.menu-open .nav-overlay {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    /* 메뉴가 열렸을 때 배경 스크롤 방지 */
+    body.menu-open {
+        overflow: hidden;
+    }
+
+    /* 기존 콘텐츠의 모바일 레이아웃 */
+    section {
+        margin-top: 20px;
+        padding: 20px;
+    }
+
+    section h2 {
+        font-size: 22px;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .char-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .char-profile {
+        width: 100%;
+        min-width: 0;
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 20px;
+        padding: 16px 20px;
+    }
+
+    .filter-buttons {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .filter-btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+/* PC에서는 모바일 메뉴 버튼과 사이드 메뉴 닫기 버튼 숨김 */
+@media (min-width: 769px) {
+    .menu-toggle-btn,
+    .nav-close-row,
+    .nav-overlay {
+        display: none;
+    }
 }
