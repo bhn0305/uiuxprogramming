@@ -797,6 +797,47 @@ function checkAndShowAlarmModal() {
     if (confirmBtn) confirmBtn.onclick = closeModalHandler;
 }
 
+// renderAllTasks() 내 완료 칩 문구/기호 병기 예시
+const statusSuffix = isCompleted ? ' [완료]' : ' [미완료]';
+chip.setAttribute('aria-label', `${displayText}${isCompleted ? ', 완료됨' : ', 미완료'}`);
+chip.innerHTML = `<span>${displayText}${statusSuffix}</span>`;
+
+// renderFavorites() 내 키보드 접근 가능한 버튼 렌더링
+favorites.forEach(nickname => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'favorite-chip';
+    btn.setAttribute('aria-label', `${nickname} 캐릭터 조회`);
+    btn.innerHTML = `<span aria-hidden="true">👤</span> <span>${nickname}</span>`;
+    btn.addEventListener('click', () => {
+        nicknameInput.value = nickname;
+        searchForm.requestSubmit();
+    });
+    favoriteListContainer.appendChild(btn);
+});
+
+// renderCustomTasks() 내 삭제 버튼 명확한 이름 제공
+const deleteBtn = chip.querySelector('.delete-task-btn');
+deleteBtn.setAttribute('aria-label', `${task.name} 숙제 삭제`);
+
+// renderCustomTasksForCharacter() 내 키보드 토글 지원
+chip.setAttribute('role', 'button');
+chip.setAttribute('tabindex', '0');
+chip.setAttribute('aria-pressed', String(isCompleted));
+chip.setAttribute('aria-label', `[${categoryLabel}] ${task.name}, ${isCompleted ? '완료됨' : '미완료'}`);
+chip.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        chip.click();
+    }
+});
+
+// 모달 열기 시 초점 이동 및 Escape 처리 보완
+// checkAndShowAlarmModal() 내부에서 모달 표시 후:
+const confirmBtn = document.getElementById('modal-confirm-btn');
+if (confirmBtn) confirmBtn.focus();
+
+
 // 알림 숨김 기간 테스트용 초기화 버튼
 // const resetAlarmTimerBtn = document.getElementById('reset-alarm-timer-btn');
 // if (resetAlarmTimerBtn) {

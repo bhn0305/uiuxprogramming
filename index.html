@@ -17,26 +17,31 @@
 </head>
 
 <body>
+    <!-- 키보드 사용자를 위한 본문 바로가기 -->
+    <a href="#main-content" class="skip-link">본문 바로가기</a>
+
     <!-- 상단 헤더 영역 -->
     <header>
         <div class="header-inner">
             <div class="header-top-row">
                 <div class="brand-zone">
                     <h1 class="site-title">
-                        <a href="#" class="spa-nav-btn" data-target="section-register">🍁 메이플 투두</a>
+                        <a href="#section-register" class="spa-nav-btn" data-target="section-register">
+                            <span aria-hidden="true">🍁</span> 메이플 투두
+                        </a>
                     </h1>
                     <span class="site-desc">광고 없이 깔끔한 숙제 체크 플래너</span>
                 </div>
 
                 <div class="header-utils">
                     <!-- 모바일 메뉴 열기 -->
-                    <button type="button" id="menu-toggle-btn" class="menu-toggle-btn" aria-expanded="false"
-                        aria-controls="nav-list" aria-label="메뉴 열기">
-                        ☰
+                    <button type="button" id="menu-toggle-btn" class="menu-toggle-btn"
+                        aria-expanded="false" aria-controls="nav-list" aria-label="메뉴 열기">
+                        <span aria-hidden="true">☰</span>
                     </button>
                     <!-- 다크모드 / 라이트모드 -->
-                    <button id="theme-toggle" aria-label="다크모드 전환 버튼">
-                        🌙 Dark
+                    <button type="button" id="theme-toggle" aria-label="다크모드 전환">
+                        <span aria-hidden="true">🌙</span> Dark
                     </button>
                 </div>
             </div>
@@ -45,7 +50,7 @@
                 <ul id="nav-list" class="nav-list">
                     <li class="nav-close-row">
                         <button type="button" id="menu-close-btn" aria-label="메뉴 닫기">
-                            ✕
+                            <span aria-hidden="true">✕</span>
                         </button>
                     </li>
                     <li>
@@ -82,40 +87,44 @@
     </header>
 
     <!-- 메인 콘텐츠 영역 -->
-    <main>
+    <main id="main-content" tabindex="-1">
         <!-- 캐릭터 등록 및 조회 섹션 -->
-        <section id="section-register" class="spa-section">
-            <h2>캐릭터 등록 및 조회</h2>
+        <section id="section-register" class="spa-section" aria-labelledby="heading-register">
+            <h2 id="heading-register">캐릭터 등록 및 조회</h2>
 
-            <!-- 닉네임 검색 폼 (원본 CSS 레이아웃 유지) -->
-            <form id="search-form">
+            <!-- 닉네임 검색 폼 -->
+            <form id="search-form" novalidate>
                 <label for="nickname">캐릭터 닉네임</label>
                 <div class="input-group">
-                    <input type="text" id="nickname" name="nickname" placeholder="메이플 닉네임을 입력하세요" required>
-                    <button type="submit" id="search-btn">조회</button>
+                    <input type="text" id="nickname" name="nickname"
+                        placeholder="메이플 닉네임을 입력하세요"
+                        aria-describedby="status-message" required>
+                    <button type="submit" id="search-btn">캐릭터 조회</button>
                 </div>
             </form>
 
             <!-- 검색 상태 및 메시지 출력 -->
-            <p id="status-message">닉네임을 입력하고 조회 버튼을 누르세요.</p>
+            <p id="status-message" role="status" aria-live="polite">
+                닉네임을 입력하고 캐릭터 조회 버튼을 누르세요.
+            </p>
 
             <!-- 즐겨찾기 캐릭터 목록 -->
             <div class="favorite-section">
-                <h4>즐겨찾기한 캐릭터</h4>
-                <div id="favorite-list" class="task-list"></div>
+                <h3 id="favorite-heading">즐겨찾기한 캐릭터</h3>
+                <div id="favorite-list" class="task-list" aria-labelledby="favorite-heading"></div>
             </div>
 
             <!-- 캐릭터 프로필 및 숙제 대시보드 카드 -->
-            <div id="character-card" class="char-card">
+            <div id="character-card" class="char-card" aria-label="캐릭터 프로필 및 숙제 현황">
                 <!-- 캐릭터 정보 및 아바타 프로필 -->
                 <div class="char-profile">
                     <div class="avatar-box">
-                        <img id="char-image" src="" alt="캐릭터 외형">
+                        <img id="char-image" src="" alt="조회된 캐릭터의 외형 이미지">
 
                         <!-- 아바타 이미지 우측 상단 즐겨찾기 버튼 -->
-                        <label class="favorite-star-label" title="즐겨찾기">
-                            <input type="checkbox" id="favorite-checkbox">
-                            <svg class="star-icon" viewBox="0 0 24 24">
+                        <label for="favorite-checkbox" class="favorite-star-label" title="즐겨찾기 등록">
+                            <input type="checkbox" id="favorite-checkbox" aria-label="현재 캐릭터 즐겨찾기">
+                            <svg class="star-icon" viewBox="0 0 24 24" aria-hidden="true">
                                 <path
                                     d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                             </svg>
@@ -157,12 +166,11 @@
                         <div class="task-list" id="weekly-boss-list"></div>
                     </div>
 
-                    <!-- 캐릭터 조회 카드의 일일 숙제 그룹 하단 등에 추가 가능 -->
+                    <!-- 커스텀 숙제 그룹 -->
                     <div class="task-group">
                         <div class="task-group-header">
                             <h4>나만의 커스텀 숙제</h4>
-                            <label for="custom-filter-checkbox" id="custom-filter-label"
-                                style="font-size: 0.75rem; cursor: pointer; color: var(--primary-color);">
+                            <label for="custom-filter-checkbox" id="custom-filter-label" class="custom-filter-toggle">
                                 <input type="checkbox" id="custom-filter-checkbox" checked>
                                 커스텀 숙제 보기
                             </label>
@@ -174,16 +182,22 @@
         </section>
 
         <!-- 나만의 숙제/일정 등록 섹션 -->
-        <section id="section-custom-task" class="spa-section">
-            <h2>나만의 숙제/일정 등록</h2>
+        <section id="section-custom-task" class="spa-section" aria-labelledby="heading-custom-task">
+            <h2 id="heading-custom-task">나만의 숙제/일정 등록</h2>
             <p>매일 또는 매주 반복되는 나만의 커스텀 숙제나 보스 일정을 직접 등록하고 관리하세요.</p>
 
-            <form id="custom-task-form">
+            <form id="custom-task-form" novalidate>
                 <div class="form-control-group">
-                    <label for="task-name">숙제 / 콘텐츠 이름 <span class="required">*</span></label>
-                    <input type="text" id="task-name" name="taskName" placeholder="예: 무릉도원 층수 클리어" required>
-                    <small class="help-text">💡 2자 이상, 특수문자 제외하고 입력해주세요. (현재 <span id="name-len">0</span>자)</small>
-                    <p id="name-error" class="error-msg"></p>
+                    <label for="task-name">
+                        숙제 / 콘텐츠 이름 <span class="required" aria-label="필수 입력">*</span>
+                    </label>
+                    <input type="text" id="task-name" name="taskName"
+                        placeholder="예: 무릉도원 층수 클리어"
+                        aria-describedby="task-name-help name-error" required>
+                    <small id="task-name-help" class="help-text">
+                        <span aria-hidden="true">💡</span> 2자 이상, 특수문자 제외하고 입력해주세요. (현재 <span id="name-len">0</span>자)
+                    </small>
+                    <p id="name-error" class="error-msg" role="alert" aria-live="polite"></p>
                 </div>
 
                 <div class="form-control-group">
@@ -196,8 +210,11 @@
                 </div>
 
                 <div id="conditional-boss-box" class="conditional-box" style="display: none;">
-                    <label for="boss-difficulty">보스 난이도 선택 <span class="required">*</span></label>
-                    <select id="boss-difficulty" name="bossDifficulty" disabled>
+                    <label for="boss-difficulty">
+                        보스 난이도 선택 <span class="required" aria-label="필수 입력">*</span>
+                    </label>
+                    <select id="boss-difficulty" name="bossDifficulty"
+                        aria-describedby="boss-diff-help boss-error" disabled>
                         <option value="">난이도를 선택하세요</option>
                         <option value="easy">Easy (이지)</option>
                         <option value="normal">Normal (노말)</option>
@@ -205,58 +222,60 @@
                         <option value="chaos">Chaos (카오스)</option>
                         <option value="extreme">Extreme (익스트림)</option>
                     </select>
-                    <small class="help-text">💡 주간 보스 분류를 선택한 경우에만 난이도를 지정할 수 있습니다.</small>
-                    <p id="boss-error" class="error-msg"></p>
+                    <small id="boss-diff-help" class="help-text">
+                        <span aria-hidden="true">💡</span> 주간 보스 분류를 선택한 경우에만 난이도를 지정할 수 있습니다.
+                    </small>
+                    <p id="boss-error" class="error-msg" role="alert" aria-live="polite"></p>
                 </div>
 
                 <div class="form-checkbox-group">
-                    <label>
+                    <label for="task-alarm">
                         <input type="checkbox" id="task-alarm" name="taskAlarm">
                         <span>접속 시 숙제 알림 팝업 받기</span>
                     </label>
                 </div>
 
                 <button type="submit" id="task-submit-btn">숙제 등록하기</button>
-                <p id="form-feedback-msg" class="feedback-msg"></p>
+                <p id="form-feedback-msg" class="feedback-msg" role="status" aria-live="polite"></p>
 
-                <div class="custom-task-list-section"
-                    style="margin-top: 30px; border-top: 1px solid var(--border-color); padding-top: 20px;">
-                    <div class="filter-header"
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
-                        <h3 id="custom-task-section-title">등록된 나만의 숙제 목록 <span id="custom-task-count"
-                                style="font-size: 0.85rem; color: var(--text-sub);">(총 0개)</span></h3>
+                <div class="custom-task-list-section">
+                    <div class="filter-header">
+                        <h3 id="custom-task-section-title">
+                            등록된 나만의 숙제 목록
+                            <span id="custom-task-count" class="task-count-badge">(총 0개)</span>
+                        </h3>
 
-                        <!-- 3가지 이상 필터 버튼 그룹 -->
+                        <!-- 3가지 필터 버튼 그룹 -->
                         <div class="filter-buttons" role="group" aria-label="숙제 분류 필터">
-                            <button type="button" class="filter-btn active" data-filter="all"
-                                aria-pressed="true">전체</button>
-                            <button type="button" class="filter-btn" data-filter="general" aria-pressed="false">일반 숙제
-                                (일일/주간)</button>
-                            <button type="button" class="filter-btn" data-filter="boss" aria-pressed="false">주간
-                                보스</button>
+                            <button type="button" class="filter-btn active" data-filter="all" aria-pressed="true">
+                                전체
+                            </button>
+                            <button type="button" class="filter-btn" data-filter="general" aria-pressed="false">
+                                일반 숙제 (일일/주간)
+                            </button>
+                            <button type="button" class="filter-btn" data-filter="boss" aria-pressed="false">
+                                주간 보스
+                            </button>
                         </div>
                     </div>
 
                     <div id="custom-task-list" class="task-list"></div>
-                    <!-- 결과가 없을 때 분기 안내 문구 -->
-                    <p id="custom-task-empty-msg" class="empty-msg"
-                        style="display: none; text-align: center; color: var(--text-sub); padding: 24px; font-size: 0.95rem; background-color: var(--nav-bg); border-radius: 8px; margin-top: 8px;">
-                    </p>
+                    <p id="custom-task-empty-msg" class="empty-msg" role="status" aria-live="polite" style="display: none;"></p>
                 </div>
             </form>
         </section>
 
         <!-- 서비스 소개 섹션 -->
-        <section id="section-intro" class="spa-section">
-            <h2>서비스 소개</h2>
+        <section id="section-intro" class="spa-section" aria-labelledby="heading-intro">
+            <h2 id="heading-intro">서비스 소개</h2>
             <h3>귀찮은 숙제 체크는 이제 그만</h3>
             <p>매번 접속해서 확인하기 번거로운 일일 퀘스트와 보스 클리어 여부를 광고 없이 쾌적하게 관리하세요.</p>
-            <img src="./assets/images/maple_service.jpg" alt="메이플스토리 인게임내 스케줄러">
+            <img src="./assets/images/maple_service.jpg" alt="메이플스토리 인게임 내 일일 및 주간 스케줄러 화면">
         </section>
 
         <!-- 주요 기능 섹션 -->
-        <section id="section-features" class="spa-section">
-            <h2>주요 기능</h2>
+        <section id="section-features" class="spa-section" aria-labelledby="heading-features">
+            <h2 id="heading-features">주요 기능</h2>
             <ul class="features-grid">
                 <li class="feature-card-item">
                     <h3>캐릭터 정보 조회</h3>
@@ -274,8 +293,8 @@
         </section>
 
         <!-- 이용 방법 섹션 -->
-        <section id="section-guide" class="spa-section">
-            <h2>이용 방법</h2>
+        <section id="section-guide" class="spa-section" aria-labelledby="heading-guide">
+            <h2 id="heading-guide">이용 방법</h2>
             <ol class="guide-list">
                 <li>조회할 메이플 캐릭터의 닉네임을 입력합니다.</li>
                 <li>체크박스를 이용해 인게임에 등록된 숙제와 전체 목록을 자유롭게 전환합니다.</li>
@@ -292,23 +311,27 @@
     </footer>
 
     <!-- 접속 시 숙제 알림 팝업 -->
-    <div id="custom-alarm-modal" class="modal-overlay" style="display: none;">
+    <div id="custom-alarm-modal" class="modal-overlay"
+        role="dialog" aria-modal="true" aria-labelledby="modal-title"
+        style="display: none;">
         <div class="modal-card">
             <div class="modal-header">
-                <h3>🔔 메이플 투두 숙제 알림</h3>
-                <button type="button" id="modal-close-btn" class="modal-close-x">&times;</button>
+                <h3 id="modal-title"><span aria-hidden="true">🔔</span> 메이플 투두 숙제 알림</h3>
+                <button type="button" id="modal-close-btn" class="modal-close-x" aria-label="알림 창 닫기">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
-                <p>오늘 완료해야 할 알림 설정된 커스텀 숙제가 있습니다!</p>
+                <p>오늘 완료해야 할 알림 설정된 커스텀 숙제가 있습니다.</p>
                 <div id="modal-task-list" class="modal-task-list"></div>
             </div>
             <div class="modal-footer">
                 <div class="modal-checkbox-row">
-                    <label>
+                    <label for="alarm-hide-option">
                         <input type="checkbox" id="alarm-hide-option" value="today">
                         <span>오늘 하루 이 알람 보지 않기</span>
                     </label>
-                    <label>
+                    <label for="alarm-hide-option-week">
                         <input type="checkbox" id="alarm-hide-option-week" value="week">
                         <span>일주일간 보지 않기</span>
                     </label>

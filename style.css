@@ -803,6 +803,132 @@ form .input-group button {
     flex-shrink: 0;
 }
 
+/* 기존 style.css 하단 또는 관련 선택자에 아래 스타일 적용/보완 */
+
+/* 본문 바로가기 링크 */
+.skip-link {
+    position: absolute;
+    top: -100px;
+    left: 16px;
+    z-index: 2000;
+    background-color: var(--primary-color);
+    color: #ffffff;
+    font-weight: 700;
+    padding: 10px 18px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: top 0.15s ease;
+}
+
+.skip-link:focus {
+    top: 12px;
+    outline: 3px solid #121418;
+    outline-offset: 2px;
+}
+
+/* 명확한 키보드 초점 표시 */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* 즐겨찾기 체크박스: display: none 대신 키보드 접근 가능한 시각적 숨김 처리 */
+.favorite-star-label {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    z-index: 10;
+}
+
+.favorite-star-label input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 30px;
+    height: 30px;
+    margin: 0;
+    cursor: pointer;
+}
+
+.favorite-star-label input[type="checkbox"]:focus-visible + .star-icon {
+    outline: 3px solid #ffffff;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* 색 대비 개선: 라이트모드 / 다크모드 오류 및 완료 텍스트 */
+.required {
+    color: #c92a2a;
+}
+
+.error-msg {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #c92a2a;
+    margin-top: 2px;
+}
+
+[data-theme="dark"] .required,
+[data-theme="dark"] .error-msg {
+    color: #ff6b6b;
+}
+
+.task-chip.completed {
+    background-color: #e6fcf5 !important;
+    border-color: #0ca678 !important;
+    color: #087f5b !important;
+}
+
+[data-theme="dark"] .task-chip.completed {
+    background-color: rgba(56, 217, 169, 0.16) !important;
+    border-color: #38d9a9 !important;
+    color: #63e6be !important;
+}
+
+.custom-filter-toggle {
+    font-size: 0.75rem;
+    cursor: pointer;
+    color: var(--text-main);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.custom-task-list-section {
+    margin-top: 30px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 20px;
+}
+
+.filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.task-count-badge {
+    font-size: 0.85rem;
+    color: var(--text-sub);
+    font-weight: 600;
+}
+
+.empty-msg {
+    text-align: center;
+    color: var(--text-sub);
+    padding: 24px;
+    font-size: 0.95rem;
+    background-color: var(--nav-bg);
+    border-radius: 8px;
+    margin-top: 8px;
+}
+
 
 /* ==========================================
    모바일 반응형 레이아웃 및 사이드 메뉴
